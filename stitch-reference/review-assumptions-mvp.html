@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Review Specification Assumptions - TechPack Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#515f74",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "tertiary-container": "#2a1700",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "surface-tint": "#565e74",
+                        "primary": "#000000",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "surface-variant": "#e0e3e5",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d8dadc",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#b87500",
+                        "on-primary-fixed": "#131b2e",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#d5e3fd",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "surface": "#f7f9fb",
+                        "surface-container": "#eceef0",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "background": "#f7f9fb",
+                        "outline": "#76777d",
+                        "primary-fixed": "#dae2fd",
+                        "secondary-container": "#d5e3fd",
+                        "on-secondary-container": "#57657b",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "unit": "4px",
+                        "margin": "32px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "spec-code": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-md": ["Geist"],
+                        "body-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "spec-code": ["13px", { "lineHeight": "1.5", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f7f9fb; } /* background */
+        .glass-panel {
+            background-color: #ffffff; /* surface-container-lowest */
+            border: 1px solid #c6c6cd; /* outline-variant */
+        }
+    </style>
+</head>
+<body class="text-on-surface h-full flex flex-col md:flex-row antialiased">
+<!-- TopNavBar (Mobile Only) -->
+<header class="md:hidden fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin h-16 bg-surface-container-lowest border-b border-outline-variant flat no shadows">
+<div class="flex items-center gap-4">
+<span class="text-headline-sm font-headline-sm font-bold tracking-tighter text-primary">FABRIC_OS</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-low transition-colors p-2 rounded">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</button>
+<button class="hover:bg-surface-container-low transition-colors p-2 rounded">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-60 flex-col py-8 border-r border-outline-variant bg-surface flat no shadows z-40">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-label-caps">
+                TS
+            </div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary leading-tight">TechPack Studio</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant mt-1">Enterprise Tier</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-2 bg-primary text-on-primary rounded text-label-caps font-label-caps hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Project
+            </button>
+</div>
+<ul class="flex-1 px-4 space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface-container transition-all text-secondary group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">dashboard</span>
+<span class="text-label-caps font-label-caps group-hover:text-primary">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-surface-container-high text-primary font-bold opacity-80 transition-opacity scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+<span class="text-label-caps font-label-caps">My Tech Packs</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface-container transition-all text-secondary group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">corporate_fare</span>
+<span class="text-label-caps font-label-caps group-hover:text-primary">Organization</span>
+</a>
+</li>
+</ul>
+<div class="px-4 mt-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface-container transition-all text-secondary group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">settings</span>
+<span class="text-label-caps font-label-caps group-hover:text-primary">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface-container transition-all text-secondary group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">help</span>
+<span class="text-label-caps font-label-caps group-hover:text-primary">Support</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-60 pt-20 md:pt-0 min-h-screen">
+<div class="max-w-[800px] mx-auto p-margin">
+<!-- Header Area -->
+<div class="mb-8">
+<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-label-caps font-label-caps mb-4" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    BACK TO TECH PACK #4920
+                </a>
+<h2 class="text-headline-lg font-headline-lg text-primary">Review Specification Assumptions</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-2 max-w-2xl">
+                    We've extracted requirements from your provided assets, but some technical details need your confirmation before generating the final spec sheet.
+                </p>
+</div>
+<!-- Review List -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="glass-panel p-6 rounded relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-fixed-dim"></div>
+<div class="flex justify-between items-start gap-6">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-3">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-label-caps font-label-caps rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+                                    AI INFERENCE
+                                </span>
+<span class="text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Fabric Weight</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface mb-4">
+<strong class="font-semibold">Why this needs review:</strong> The buyer specified cotton, but GSM cannot be reliably determined from the supplied visual reference image alone.
+                            </p>
+<div class="bg-surface-container p-4 rounded border border-outline-variant flex items-center justify-between">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1">Suggested Starting Point</p>
+<p class="text-spec-code font-spec-code text-primary">240 GSM cotton twill</p>
+</div>
+<button class="text-primary hover:text-secondary transition-colors p-2 rounded hover:bg-surface-variant" title="View Source Image">
+<span class="material-symbols-outlined">image</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-2 min-w-[120px]">
+<button class="w-full py-2 px-4 bg-primary text-on-primary rounded text-label-caps font-label-caps hover:opacity-90 transition-opacity">
+                                Confirm
+                            </button>
+<button class="w-full py-2 px-4 border border-outline-variant text-primary rounded text-label-caps font-label-caps hover:bg-surface-container-low transition-colors">
+                                Edit
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-panel p-6 rounded relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-fixed-dim"></div>
+<div class="flex justify-between items-start gap-6">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-3">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-label-caps font-label-caps rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+                                    AI INFERENCE
+                                </span>
+<span class="text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Hardware Finish</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface mb-4">
+<strong class="font-semibold">Why this needs review:</strong> "Metal zipper" was requested in notes, but the specific finish (e.g., Antique Brass, Gunmetal) was not detailed.
+                            </p>
+<div class="bg-surface-container p-4 rounded border border-outline-variant flex items-center justify-between">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1">Suggested Starting Point</p>
+<p class="text-spec-code font-spec-code text-primary">YKK #5 Matte Gunmetal</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 min-w-[120px]">
+<button class="w-full py-2 px-4 bg-primary text-on-primary rounded text-label-caps font-label-caps hover:opacity-90 transition-opacity">
+                                Confirm
+                            </button>
+<button class="w-full py-2 px-4 border border-outline-variant text-primary rounded text-label-caps font-label-caps hover:bg-surface-container-low transition-colors">
+                                Edit
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-panel p-6 rounded relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-fixed-dim"></div>
+<div class="flex justify-between items-start gap-6">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-3">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-label-caps font-label-caps rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+                                    AI INFERENCE
+                                </span>
+<span class="text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Seam Allowance</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface mb-4">
+<strong class="font-semibold">Why this needs review:</strong> Standard allowances applied based on garment type (Outerwear Jacket), but not explicitly stated in the design brief.
+                            </p>
+<div class="bg-surface-container p-4 rounded border border-outline-variant flex flex-col gap-2">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-1">Suggested Starting Point</p>
+<div class="grid grid-cols-2 gap-4 mt-2">
+<div>
+<span class="text-label-caps font-label-caps text-on-surface-variant block">Body Seams</span>
+<span class="text-spec-code font-spec-code text-primary">1.5 cm</span>
+</div>
+<div>
+<span class="text-label-caps font-label-caps text-on-surface-variant block">Hem</span>
+<span class="text-spec-code font-spec-code text-primary">3.0 cm</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 min-w-[120px]">
+<button class="w-full py-2 px-4 bg-primary text-on-primary rounded text-label-caps font-label-caps hover:opacity-90 transition-opacity">
+                                Confirm
+                            </button>
+<button class="w-full py-2 px-4 border border-outline-variant text-primary rounded text-label-caps font-label-caps hover:bg-surface-container-low transition-colors">
+                                Edit
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="mt-8 pt-6 border-t border-outline-variant flex justify-end gap-4">
+<button class="py-3 px-6 border border-outline-variant text-primary rounded text-label-caps font-label-caps hover:bg-surface-container-low transition-colors">
+                    Save Progress
+                </button>
+<button class="py-3 px-6 bg-primary text-on-primary rounded text-label-caps font-label-caps hover:opacity-90 transition-opacity opacity-50 cursor-not-allowed" title="Confirm all assumptions to proceed">
+                    Complete Review &amp; Generate Spec
+                </button>
+</div>
+</div>
+</main>
+</body></html>

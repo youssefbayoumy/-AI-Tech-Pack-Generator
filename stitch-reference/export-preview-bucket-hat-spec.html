@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Export View - Reversible Cotton Bucket Hat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#515f74",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "tertiary-container": "#2a1700",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "surface-tint": "#565e74",
+                        "primary": "#000000",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "surface-variant": "#e0e3e5",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d8dadc",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#b87500",
+                        "on-primary-fixed": "#131b2e",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#d5e3fd",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "surface": "#f7f9fb",
+                        "surface-container": "#eceef0",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "background": "#f7f9fb",
+                        "outline": "#76777d",
+                        "primary-fixed": "#dae2fd",
+                        "secondary-container": "#d5e3fd",
+                        "on-secondary-container": "#57657b",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "unit": "4px",
+                        "margin": "32px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "spec-code": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-md": ["Geist"],
+                        "body-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "spec-code": ["13px", { "lineHeight": "1.5", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #ffffff; color: #191c1e; }
+        .export-page { max-width: 1024px; margin: 0 auto; padding: 48px; position: relative; }
+        .spec-table th, .spec-table td { border-bottom: 1px solid #c6c6cd; padding: 8px 12px; text-align: left; }
+        .spec-table th { background-color: #f7f9fb; font-family: 'Geist', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #45464d; }
+        .spec-table td { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #191c1e; }
+        .section-header { border-bottom: 1px solid #191c1e; margin-bottom: 16px; padding-bottom: 8px; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 120px; font-weight: 700; color: rgba(224, 227, 229, 0.4); z-index: 0; pointer-events: none; white-space: nowrap; font-family: 'Geist', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased font-body-md selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<div class="export-page relative z-10 bg-surface-container-lowest min-h-screen">
+<div class="watermark">DRAFT - NOT APPROVED</div>
+<!-- Header -->
+<header class="flex justify-between items-end border-b-2 border-primary pb-margin mb-margin relative z-10">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-unit">Document Type: Technical Specification</p>
+<h1 class="font-headline-lg text-headline-lg text-primary uppercase tracking-tight">TECHNICAL SPECIFICATION: REVERSIBLE COTTON BUCKET HAT</h1>
+<p class="font-spec-code text-spec-code text-on-surface-variant mt-2">Style #: BKH-REV-001 | Date: Oct 26, 2023 | Season: SS24</p>
+</div>
+<div class="text-right">
+<div class="bg-error-container text-on-error-container font-label-caps text-label-caps px-3 py-1 rounded inline-block uppercase font-bold border border-error">
+                    DRAFT — NOT APPROVED FOR PRODUCTION
+                </div>
+</div>
+</header>
+<!-- Main Grid -->
+<main class="grid grid-cols-12 gap-margin relative z-10">
+<!-- Left Column (Images & Overview) -->
+<div class="col-span-12 md:col-span-5 flex flex-col gap-margin">
+<section>
+<div class="section-header">
+<h2 class="font-headline-sm text-headline-sm text-primary">Product Imagery</h2>
+</div>
+<div class="border border-outline-variant p-4 bg-surface rounded-sm relative group overflow-hidden">
+<img class="w-full h-auto object-cover rounded-sm border border-outline-variant mix-blend-multiply" data-alt="A detailed flat sketch or high-quality product photograph of a reversible cotton bucket hat on a clean white background. The image should clearly show the classic bucket hat silhouette with a downward sloping brim. The style is technical and minimal, suitable for a fashion spec sheet. High key lighting, sharp focus on details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKWqODi17zyUK_gzt8u47-NgzTquBDeNfF9YLy75hhT2F7vhyvpSEk2o7ss6YgFvmXJTufFx5fEeJ2HiCI-cf5LnO0XDCRoInfZW-fxD1c0vhfBx7O-AkJXn8--8nM1SdwaSAqOVOnTvRgvOOcjlppG5Vmm9LN9zpshMrxLxjh3vVa9-GGxUAYQBi4qpJn2ePw4bRbrtlu3D2vH1a2qIjtJHyw2OTww5TCg0Yx-1WkYls0lHOomH3J" style="aspect-ratio: 1/1;"/>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-4">
+<div class="border border-outline-variant p-2 bg-surface rounded-sm text-center">
+<span class="font-label-caps text-label-caps block mb-2">Side A</span>
+<div class="w-full h-12 bg-[#C3B091] border border-outline-variant rounded-sm"></div>
+<span class="font-spec-code text-spec-code text-xs block mt-1">Khaki</span>
+</div>
+<div class="border border-outline-variant p-2 bg-surface rounded-sm text-center">
+<span class="font-label-caps text-label-caps block mb-2">Side B</span>
+<div class="w-full h-12 bg-[#1A1A1A] border border-outline-variant rounded-sm"></div>
+<span class="font-spec-code text-spec-code text-xs block mt-1">Black</span>
+</div>
+</div>
+</section>
+<section>
+<div class="section-header">
+<h2 class="font-headline-sm text-headline-sm text-primary">Overview</h2>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+<p class="mb-4">Fully reversible cotton canvas bucket hat featuring a 2.5" downward sloping brim with multi-row topstitching. Side A constructed in durable Khaki canvas, Side B in standard Black canvas. Engineered for versatile styling and sun protection.</p>
+<ul class="list-disc pl-5 space-y-1 font-spec-code text-spec-code">
+<li>Material: 100% Cotton Canvas (10oz)</li>
+<li>Fit: Relaxed, deep crown</li>
+<li>Care: Machine wash cold, tumble dry low</li>
+</ul>
+</div>
+</section>
+</div>
+<!-- Right Column (Data Tables) -->
+<div class="col-span-12 md:col-span-7 flex flex-col gap-margin">
+<section>
+<div class="section-header">
+<h2 class="font-headline-sm text-headline-sm text-primary">Bill of Materials (BOM)</h2>
+</div>
+<div class="overflow-x-auto border border-outline-variant rounded-sm">
+<table class="w-full spec-table">
+<thead>
+<tr>
+<th>Ref</th>
+<th>Placement</th>
+<th>Material / Description</th>
+<th>Supplier</th>
+<th>Qty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>Main Body (Side A)</td>
+<td>10oz Cotton Canvas - Khaki (Pantone 16-1118)</td>
+<td>Fabric Mill A</td>
+<td>0.3 yds</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>Main Body (Side B)</td>
+<td>10oz Cotton Canvas - Black (Pantone 19-4004)</td>
+<td>Fabric Mill A</td>
+<td>0.3 yds</td>
+</tr>
+<tr>
+<td>T1</td>
+<td>Thread (Side A)</td>
+<td>Poly-core Cotton Wrap DTM Khaki</td>
+<td>ThreadCo</td>
+<td>1 spool</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>Thread (Side B)</td>
+<td>Poly-core Cotton Wrap DTM Black</td>
+<td>ThreadCo</td>
+<td>1 spool</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>Care Label</td>
+<td>Printed Satin (Concealed in seam)</td>
+<td>LabelWorks</td>
+<td>1 pc</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<div class="section-header">
+<h2 class="font-headline-sm text-headline-sm text-primary">Measurement Specifications (Tolerance +/- 0.25")</h2>
+</div>
+<div class="overflow-x-auto border border-outline-variant rounded-sm">
+<table class="w-full spec-table">
+<thead>
+<tr>
+<th>Code</th>
+<th>Point of Measure (POM)</th>
+<th>S (Inches)</th>
+<th>M (Inches)</th>
+<th>L (Inches)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Crown Circumference (Inner)</td>
+<td>22.00</td>
+<td>22.80</td>
+<td>23.50</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Crown Height (Center to Brim Seam)</td>
+<td>3.25</td>
+<td>3.50</td>
+<td>3.75</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Brim Depth (Front/Back)</td>
+<td>2.50</td>
+<td>2.50</td>
+<td>2.50</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Top Circle Diameter</td>
+<td>5.75</td>
+<td>6.00</td>
+<td>6.25</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<div class="section-header">
+<h2 class="font-headline-sm text-headline-sm text-primary">Construction &amp; Sewing Details</h2>
+</div>
+<div class="border border-outline-variant p-4 bg-surface rounded-sm">
+<ul class="space-y-3 font-spec-code text-spec-code text-on-surface-variant">
+<li class="flex items-start">
+<span class="material-symbols-outlined text-secondary mr-2 text-sm mt-0.5">straighten</span>
+<div><strong>Brim Stitching:</strong> 8 rows of concentric topstitching, 1/4" spacing. Needle size 90/14.</div>
+</li>
+<li class="flex items-start">
+<span class="material-symbols-outlined text-secondary mr-2 text-sm mt-0.5">layers</span>
+<div><strong>Crown Seams:</strong> Clean finished inner seams. Side A panels sewn to Side B panels at brim edge, turned, and edge stitched (1/16").</div>
+</li>
+<li class="flex items-start">
+<span class="material-symbols-outlined text-secondary mr-2 text-sm mt-0.5">label</span>
+<div><strong>Label Placement:</strong> Insert care label into side crown seam on Side B (Black side), 1" from brim seam. Must be easily removable by consumer.</div>
+</li>
+</ul>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-margin pt-gutter border-t border-outline-variant text-center relative z-10 flex justify-between items-center text-on-surface-variant font-label-caps text-label-caps">
+<span>Generated via Fabric_OS MVP Challenge</span>
+<span>Page 1 of 1</span>
+</footer>
+</div>
+</body></html>

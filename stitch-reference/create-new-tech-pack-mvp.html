@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface-container-lowest antialiased" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Intake - FABRIC_OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#515f74",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-container": "#2a1700",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#2a1700",
+                      "primary-container": "#131b2e",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-surface": "#191c1e",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-fixed": "#0d1c2f",
+                      "surface-tint": "#565e74",
+                      "primary": "#000000",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b9c7e0",
+                      "surface-variant": "#e0e3e5",
+                      "on-background": "#191c1e",
+                      "surface-dim": "#d8dadc",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary": "#000000",
+                      "surface-bright": "#f7f9fb",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#b87500",
+                      "on-primary-fixed": "#131b2e",
+                      "inverse-on-surface": "#eff1f3",
+                      "secondary-fixed": "#d5e3fd",
+                      "inverse-surface": "#2d3133",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container-highest": "#e0e3e5",
+                      "surface-container-low": "#f2f4f6",
+                      "on-secondary-fixed-variant": "#3a485c",
+                      "surface": "#f7f9fb",
+                      "surface-container": "#eceef0",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "background": "#f7f9fb",
+                      "outline": "#76777d",
+                      "primary-fixed": "#dae2fd",
+                      "secondary-container": "#d5e3fd",
+                      "on-secondary-container": "#57657b",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container-high": "#e6e8ea",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "unit": "4px",
+                      "margin": "32px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Geist"],
+                      "headline-sm": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "spec-code": ["JetBrains Mono"],
+                      "label-caps": ["Geist"],
+                      "body-md": ["Geist"],
+                      "body-lg": ["Geist"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "spec-code": ["13px", {"lineHeight": "1.5", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                      "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Form element focus states overriding default ring */
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: theme('colors.primary');
+        }
+
+        /* Hide scrollbar for clean look in description */
+        textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: theme('colors.surface-container-highest');
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-surface h-full flex flex-col items-center justify-center p-margin overflow-y-auto">
+<!-- Main Container -->
+<main class="w-full max-w-5xl bg-surface-container-lowest border border-outline-variant flex flex-col shadow-sm">
+<!-- Header -->
+<header class="w-full flex justify-between items-center px-6 py-4 border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl icon-fill" data-icon="polyline">polyline</span>
+<h1 class="font-headline-sm text-headline-sm tracking-tight text-primary">FABRIC_OS <span class="font-normal text-on-surface-variant ml-2 text-sm border-l border-outline-variant pl-2">Drafting Studio</span></h1>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-lg" data-icon="close">close</span>
+                DISCARD DRAFT
+            </button>
+</header>
+<!-- Content Area Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+<!-- Left Pane: Upload Area -->
+<section class="p-8 border-r-0 md:border-r border-b md:border-b-0 border-outline-variant flex flex-col justify-center min-h-[500px] bg-surface-bright relative group transition-colors hover:bg-surface-container-low cursor-pointer">
+<input aria-label="Upload Photo or Sketch" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" type="file"/>
+<div class="flex flex-col items-center justify-center text-center space-y-4 relative z-0 pointer-events-none">
+<div class="w-20 h-20 rounded-full bg-surface flex items-center justify-center border border-outline-variant group-hover:border-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl text-secondary group-hover:text-primary transition-colors duration-300" data-icon="add_photo_alternate">add_photo_alternate</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary mb-2">Upload Reference</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mx-auto">Drop a photo, flat sketch, or inspiration image here. High contrast images yield best measurement extraction.</p>
+</div>
+<div class="mt-6 flex gap-2">
+<span class="inline-flex items-center px-2 py-1 bg-surface border border-outline-variant text-secondary font-spec-code text-[11px] rounded uppercase tracking-wider">JPG</span>
+<span class="inline-flex items-center px-2 py-1 bg-surface border border-outline-variant text-secondary font-spec-code text-[11px] rounded uppercase tracking-wider">PNG</span>
+<span class="inline-flex items-center px-2 py-1 bg-surface border border-outline-variant text-secondary font-spec-code text-[11px] rounded uppercase tracking-wider">PDF</span>
+</div>
+</div>
+</section>
+<!-- Right Pane: Description & Actions -->
+<section class="p-8 flex flex-col h-full">
+<div class="flex-grow flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-3 flex items-center gap-2 uppercase" for="product-description">
+<span class="material-symbols-outlined text-sm" data-icon="subject">subject</span>
+                        Product Description
+                    </label>
+<textarea class="w-full flex-grow min-h-[250px] p-4 bg-surface-bright border border-outline-variant rounded-none resize-none font-body-md text-body-md text-on-surface focus:border-primary transition-colors placeholder:text-on-surface-variant/50" id="product-description" placeholder="Describe the garment in detail. Include fit, key construction details, intended fabric type, and any specific hardware requirements...
+
+E.g., Oversized drop-shoulder hoodie in heavyweight 450gsm French Terry. Double-lined hood, silver eyelets, kangaroo pocket with reinforced bartacks. Ribbed cuffs and hem."></textarea>
+</div>
+<!-- Advanced Settings Toggle -->
+<div class="mt-6 border-t border-outline-variant pt-4">
+<details class="group">
+<summary class="flex justify-between items-center cursor-pointer list-none font-label-caps text-label-caps text-secondary hover:text-primary transition-colors uppercase">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="tune">tune</span>
+                                Advanced Taxonomy Settings
+                            </span>
+<span class="material-symbols-outlined text-sm transition-transform duration-300 group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="grid grid-cols-2 gap-4 pt-4 mt-2 border-t border-surface-container-highest">
+<div>
+<label class="block font-spec-code text-spec-code text-secondary mb-1">Category</label>
+<select class="w-full p-2 bg-surface border border-outline-variant rounded-none font-body-md text-body-md text-on-surface appearance-none focus:border-primary">
+<option disabled="" selected="" value="">Select Category...</option>
+<option value="outerwear">Outerwear</option>
+<option value="tops">Tops</option>
+<option value="bottoms">Bottoms</option>
+<option value="accessories">Accessories</option>
+</select>
+</div>
+<div>
+<label class="block font-spec-code text-spec-code text-secondary mb-1">Season</label>
+<input class="w-full p-2 bg-surface border border-outline-variant rounded-none font-body-md text-body-md text-on-surface focus:border-primary" placeholder="e.g. FW24" type="text"/>
+</div>
+</div>
+</details>
+</div>
+<!-- Generate Button -->
+<div class="mt-8">
+<button class="w-full py-4 bg-primary text-on-primary font-headline-sm text-headline-sm font-semibold hover:bg-secondary transition-colors flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+                        Generate Tech Pack
+                    </button>
+<p class="text-center font-spec-code text-[11px] text-secondary mt-3">Estimated generation time: ~45s. Requires FABRIC_OS Compute credits.</p>
+</div>
+</section>
+</div>
+<!-- Example Footer -->
+<footer class="border-t border-outline-variant bg-surface-container-low p-4 px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-dim border border-outline-variant flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="experiment">experiment</span>
+</div>
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface uppercase">Try the Example</h4>
+<p class="font-spec-code text-[12px] text-secondary">Reversible Cotton Bucket Hat (Khaki / Black)</p>
+</div>
+</div>
+<button class="px-4 py-2 border border-outline-variant bg-surface-container-lowest text-primary font-label-caps text-label-caps hover:bg-surface-bright transition-colors uppercase whitespace-nowrap">
+                 Load Example Data
+             </button>
+</footer>
+</main>
+</body></html>

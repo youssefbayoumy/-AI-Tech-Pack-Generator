@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tech Pack: Reversible Bucket Hat - FABRIC_OS</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#515f74",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-container": "#2a1700",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#2a1700",
+                      "primary-container": "#131b2e",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-surface": "#191c1e",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-fixed": "#0d1c2f",
+                      "surface-tint": "#565e74",
+                      "primary": "#000000",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed-dim": "#b9c7e0",
+                      "surface-variant": "#e0e3e5",
+                      "on-background": "#191c1e",
+                      "surface-dim": "#d8dadc",
+                      "outline-variant": "#c6c6cd",
+                      "tertiary": "#000000",
+                      "surface-bright": "#f7f9fb",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#b87500",
+                      "on-primary-fixed": "#131b2e",
+                      "inverse-on-surface": "#eff1f3",
+                      "secondary-fixed": "#d5e3fd",
+                      "inverse-surface": "#2d3133",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container-highest": "#e0e3e5",
+                      "surface-container-low": "#f2f4f6",
+                      "on-secondary-fixed-variant": "#3a485c",
+                      "surface": "#f7f9fb",
+                      "surface-container": "#eceef0",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "background": "#f7f9fb",
+                      "outline": "#76777d",
+                      "primary-fixed": "#dae2fd",
+                      "secondary-container": "#d5e3fd",
+                      "on-secondary-container": "#57657b",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container-high": "#e6e8ea",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "unit": "4px",
+                      "margin": "32px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "spec-code": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "spec-code": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Provenance Tooltips */
+        .provenance-indicator {
+            position: relative;
+            display: inline-block;
+        }
+        .provenance-indicator:hover::after {
+            content: attr(data-provenance);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 4px;
+            padding: 4px 8px;
+            background-color: var(--color-surface-container-highest, #e0e3e5);
+            color: var(--color-on-surface, #191c1e);
+            font-family: "Geist", sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface h-full flex flex-col antialiased">
+<!-- Top App Bar - Minimal for focused editing -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin h-16 bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex items-center gap-gutter">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="h-6 w-px bg-outline-variant"></div>
+<div>
+<h1 class="text-headline-sm font-headline-sm text-primary">Reversible Bucket Hat</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant">DRAFT • LAST EDITED 2H AGO</p>
+</div>
+</div>
+<div class="flex items-center gap-gutter">
+<button class="px-4 py-2 text-label-caps font-label-caps border border-outline-variant rounded text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+                Edit
+            </button>
+<button class="px-4 py-2 text-label-caps font-label-caps border border-outline-variant rounded text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">autorenew</span>
+                Regenerate Section
+            </button>
+<button class="px-4 py-2 text-label-caps font-label-caps bg-primary text-on-primary rounded hover:bg-secondary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                Export PDF
+            </button>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-1 flex pt-16 h-full overflow-hidden">
+<!-- Center Canvas: The Tech Pack -->
+<div class="flex-1 overflow-y-auto p-margin bg-surface flex justify-center">
+<div class="w-full max-w-[800px] bg-surface-container-lowest border border-outline-variant rounded shadow-sm">
+<!-- Document Header -->
+<div class="p-margin border-b border-outline-variant">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-primary mb-2">Reversible Bucket Hat</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Season: SS24 | Style No: BH-REV-01 | Fit: Standard</p>
+</div>
+<div class="w-32 h-32 border border-outline-variant bg-surface-container-low overflow-hidden flex items-center justify-center relative">
+<span class="provenance-indicator absolute top-2 right-2 w-2 h-2 rounded-full bg-secondary-fixed" data-provenance="Buyer Provided"></span>
+<img class="object-cover w-full h-full" data-alt="A clean, minimalist studio product shot of a reversible bucket hat. The hat is displayed on an invisible mannequin against a pure white background. The visible side is a muted khaki color. The lighting is soft and even, highlighting the fabric texture and stitching details. The image has a crisp, high-end editorial feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAlKDQOrpGjEW5wX0ucwkAJfH0Le1MJFlgoUNxdEZl6DsrbPXPblDT866EERFQV_z6W-Nek-FJ23MSlRtsmtCLzD-isoJSS-tK_msFPdZb4mHU7E7f7aIY-f-5UV4DE896M--ItPm1RWxBG6mDMxRj6R_XmV6aUcwbYWbXRj2hUsW2--UymcrIWkVejsaNKRBZZv2oOR7SzxxUTUdSLnCSp88zLyE3jKWVMCcy6Sy2_Ftr2x0ORT0E"/>
+</div>
+</div>
+</div>
+<!-- Product Overview -->
+<div class="p-margin border-b border-outline-variant">
+<div class="flex items-center gap-2 mb-4">
+<h3 class="text-headline-sm font-headline-sm text-primary">Product Overview</h3>
+</div>
+<p class="text-body-lg font-body-lg text-on-surface leading-relaxed">
+                        A fully reversible bucket hat featuring a downward sloping brim. Side A is constructed from a durable cotton twill in Khaki, while Side B utilizes a lightweight nylon in Black. Designed for versatile styling and practical sun protection.
+                    </p>
+</div>
+<!-- Bill of Materials (BOM) -->
+<div class="p-margin border-b border-outline-variant">
+<h3 class="text-headline-sm font-headline-sm text-primary mb-4">Bill of Materials</h3>
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-1/4">Component</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-1/2">Description</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-1/4">Status</th>
+</tr>
+</thead>
+<tbody class="text-spec-code font-spec-code">
+<tr class="border-b border-outline-variant">
+<td class="py-3 px-3">Fabric - Side A</td>
+<td class="py-3 px-3">100% Cotton Twill, Khaki
+                                    <span class="provenance-indicator inline-block ml-1 w-1.5 h-1.5 rounded-full bg-inverse-primary" data-provenance="Visually Inferred"></span>
+</td>
+<td class="py-3 px-3"><span class="bg-surface-container-high px-2 py-1 rounded text-xs">APPROVED</span></td>
+</tr>
+<tr class="border-b border-outline-variant bg-error-container/20">
+<td class="py-3 px-3">Fabric - Side B</td>
+<td class="py-3 px-3 text-error flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                                    100% Nylon, Black (Weight Not Specified)
+                                </td>
+<td class="py-3 px-3"><span class="bg-error-container text-on-error-container px-2 py-1 rounded text-xs border border-error/20">NEEDS CONFIRMATION</span></td>
+</tr>
+<tr class="border-b border-outline-variant">
+<td class="py-3 px-3">Thread</td>
+<td class="py-3 px-3">Tex 40 Poly-Core, DTM (Match Side A/B)</td>
+<td class="py-3 px-3"><span class="bg-surface-container-high px-2 py-1 rounded text-xs">APPROVED</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Measurement Specification -->
+<div class="p-margin border-b border-outline-variant">
+<h3 class="text-headline-sm font-headline-sm text-primary mb-4">Measurement Specification (cm)</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[600px]">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-12">Code</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant">Point of Measure</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-16 text-center">Tol +/-</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-16 text-center">S</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-16 text-center">M</th>
+<th class="py-2 px-3 text-label-caps font-label-caps text-on-surface-variant w-16 text-center">L</th>
+</tr>
+</thead>
+<tbody class="text-spec-code font-spec-code">
+<tr class="border-b border-outline-variant">
+<td class="py-3 px-3 text-on-surface-variant">A</td>
+<td class="py-3 px-3">Crown Circumference (Base)</td>
+<td class="py-3 px-3 text-center text-on-surface-variant">0.5</td>
+<td class="py-3 px-3 text-center">56</td>
+<td class="py-3 px-3 text-center">58</td>
+<td class="py-3 px-3 text-center">60</td>
+</tr>
+<tr class="border-b border-outline-variant bg-error-container/20">
+<td class="py-3 px-3 text-on-surface-variant">B</td>
+<td class="py-3 px-3 text-error">Brim Width</td>
+<td class="py-3 px-3 text-center text-on-surface-variant">-</td>
+<td class="py-3 px-3 text-center">-</td>
+<td class="py-3 px-3 text-center">-</td>
+<td class="py-3 px-3 text-center">-</td>
+</tr>
+<tr class="border-b border-outline-variant">
+<td class="py-3 px-3 text-on-surface-variant">C</td>
+<td class="py-3 px-3">Crown Height</td>
+<td class="py-3 px-3 text-center text-on-surface-variant">0.5</td>
+<td class="py-3 px-3 text-center">8.5</td>
+<td class="py-3 px-3 text-center">9.0</td>
+<td class="py-3 px-3 text-center">9.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Construction -->
+<div class="p-margin border-b border-outline-variant">
+<h3 class="text-headline-sm font-headline-sm text-primary mb-4">Construction Details</h3>
+<div class="grid grid-cols-2 gap-8">
+<div>
+<ul class="space-y-3 text-body-md font-body-md text-on-surface">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mt-0.5">check_circle</span>
+<span>Multi-stitch brim (6 rows, evenly spaced at 6mm).</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mt-0.5">check_circle</span>
+<span>Clean finish seams throughout.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-error mt-0.5">warning</span>
+<span class="text-error">Label placement — Not specified. Buyer confirmation required.</span>
+</li>
+</ul>
+</div>
+<div class="h-48 border border-outline-variant bg-surface-container-low flex items-center justify-center p-4">
+<img class="object-contain w-full h-full opacity-80 mix-blend-multiply" data-alt="A highly detailed technical flat drawing of a bucket hat construction, focusing on the brim stitching. Clean black linework on a white background, resembling architectural blueprints applied to fashion design. Text annotations point to specific stitch lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBog4k8Y7zYz3SZDJwV6xS9N4AkCoCzbsIoWtYQM_A_4lhlmXLxQLjhrrm_-9wVEHVnQ9KVM7NHy-1-_SYDwfzRA9InipQoYV8XgDRITicAGA8IYTsmN_fr9MP4ZsWUN5xpW8UHJ8wirpchBP76aU5F4aKZqkCfXCA-vUknNOgMzQEuE6rqk-pZ0T5FVoAm8mxwisR5TquqGCdxuDNPBzKevhw-VUpCC2sJcX9k-W4xXtWe-Q2boWUl"/>
+</div>
+</div>
+</div>
+<!-- Colorways -->
+<div class="p-margin">
+<h3 class="text-headline-sm font-headline-sm text-primary mb-4">Colorways</h3>
+<div class="flex gap-8">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full border border-outline-variant bg-[#c3b091] shadow-inner"></div>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">SIDE A</p>
+<p class="text-body-md font-body-md font-medium">Khaki (Pantone 16-0726 TCX)</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full border border-outline-variant bg-[#111111] shadow-inner"></div>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">SIDE B</p>
+<p class="text-body-md font-body-md font-medium">Black</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Needs Confirmation -->
+<aside class="w-80 border-l border-outline-variant bg-surface-container-lowest h-full overflow-y-auto flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.02)]">
+<div class="p-6 border-b border-outline-variant bg-surface-container-low">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-error">assignment_late</span>
+<h2 class="text-headline-sm font-headline-sm text-primary">Needs Confirmation</h2>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant"><span class="font-bold text-error">3</span> items require review</p>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-4">
+<!-- Action Item 1 -->
+<div class="border border-error/30 bg-error-container/10 p-4 rounded hover:bg-error-container/20 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-body-md font-body-md font-semibold text-primary">Fabric Weight</h4>
+<span class="text-[10px] uppercase tracking-wider font-bold text-error bg-error/10 px-1.5 py-0.5 rounded">BOM</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Not specified for Side B (Nylon). Buyer confirmation required to source materials.</p>
+<div class="flex gap-2">
+<input class="flex-1 text-spec-code bg-surface-container-lowest border-outline-variant rounded-sm px-2 py-1 focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Enter GSM..." type="text"/>
+<button class="bg-surface-container-highest px-3 py-1 rounded-sm text-label-caps font-label-caps hover:bg-outline-variant transition-colors">SAVE</button>
+</div>
+</div>
+<!-- Action Item 2 -->
+<div class="border border-error/30 bg-error-container/10 p-4 rounded hover:bg-error-container/20 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-body-md font-body-md font-semibold text-primary">Size Measurements</h4>
+<span class="text-[10px] uppercase tracking-wider font-bold text-error bg-error/10 px-1.5 py-0.5 rounded">SPEC</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Brim Width measurements missing across all sizes (S, M, L).</p>
+<button class="w-full border border-outline-variant px-3 py-2 rounded-sm text-label-caps font-label-caps hover:bg-surface-container-high transition-colors bg-surface-container-lowest flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">straighten</span>
+                        ADD MEASUREMENTS
+                    </button>
+</div>
+<!-- Action Item 3 -->
+<div class="border border-error/30 bg-error-container/10 p-4 rounded hover:bg-error-container/20 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-body-md font-body-md font-semibold text-primary">Label Placement</h4>
+<span class="text-[10px] uppercase tracking-wider font-bold text-error bg-error/10 px-1.5 py-0.5 rounded">CONST</span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Reversible design requires specific care/brand label placement instructions.</p>
+<div class="relative">
+<select class="w-full text-body-md bg-surface-container-lowest border-outline-variant rounded-sm px-2 py-2 appearance-none focus:ring-1 focus:ring-primary focus:border-primary">
+<option value="">Select Placement...</option>
+<option value="tearaway">Tearaway label on Side B</option>
+<option value="pocket">Hidden in internal pocket</option>
+<option value="brim">Woven label on brim edge</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-outline-variant bg-surface-container-lowest">
+<button class="w-full px-4 py-3 text-label-caps font-label-caps bg-primary text-on-primary rounded hover:bg-secondary transition-colors">
+                    APPROVE ALL PENDING
+                </button>
+</div>
+</aside>
+</main>
+</body></html>
