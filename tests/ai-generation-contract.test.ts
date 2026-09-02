@@ -5,6 +5,9 @@ import { bucketHatContentFixture } from '../src/demo/bucket-hat';
 import { techPackContentSchema } from '../src/domain/tech-pack';
 import {
   DEFAULT_OPENAI_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_THINKING_LEVEL,
+  DEFAULT_OPENROUTER_MODEL,
   DEFAULT_REASONING_EFFORT,
   TECH_PACK_GENERATION_INSTRUCTIONS,
   TECH_PACK_GENERATION_PROMPT_VERSION,
@@ -12,6 +15,9 @@ import {
   buildTechPackGenerationInput,
   buildTechPackRepairInput,
   getOpenAiModel,
+  getAiProvider,
+  getOpenRouterModel,
+  getGeminiModel,
   techPackContentJsonSchema,
   techPackStructuredOutputFormat,
   validateModelTechPackOutput,
@@ -113,6 +119,16 @@ describe('repair and provider configuration contracts', () => {
     expect(DEFAULT_REASONING_EFFORT).toBe('medium');
     expect(getOpenAiModel({})).toBe('gpt-5.6-sol');
     expect(getOpenAiModel({ OPENAI_MODEL: 'gpt-5.6-terra' })).toBe('gpt-5.6-terra');
+    expect(getAiProvider({})).toBe('openai');
+    expect(getAiProvider({ AI_PROVIDER: 'openrouter' })).toBe('openrouter');
+    expect(getAiProvider({ AI_PROVIDER: 'gemini' })).toBe('gemini');
+    expect(DEFAULT_OPENROUTER_MODEL).toBe('qwen/qwen2.5-vl-32b-instruct:free');
+    expect(getOpenRouterModel({})).toBe('qwen/qwen2.5-vl-32b-instruct:free');
+    expect(getOpenRouterModel({ OPENROUTER_MODEL: 'vendor/vision-model' })).toBe('vendor/vision-model');
+    expect(DEFAULT_GEMINI_MODEL).toBe('gemini-3.7-flash');
+    expect(DEFAULT_GEMINI_THINKING_LEVEL).toBe('medium');
+    expect(getGeminiModel({})).toBe('gemini-3.7-flash');
+    expect(getGeminiModel({ GEMINI_MODEL: 'configured-gemini-model' })).toBe('configured-gemini-model');
   });
 });
 

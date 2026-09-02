@@ -1,26 +1,54 @@
 # AI generation boundary
 
-This repository now defines the AI-generation contract only. It does not call
-OpenAI, instantiate an SDK client, add a route, accept server uploads, wire the
-Generate button, or change the approved UI/domain model.
+This repository implements the AI-generation contract and its server-side
+generation route. It does not change the approved UI/domain model.
 
 ## Target integration
 
-The next step should use one multimodal OpenAI Responses API request with no
-tools, web search, RAG, or agent loop. The primary model is `gpt-5.6-sol`;
-`OPENAI_MODEL=gpt-5.6-terra` is the allowed server-only alternative. The
-configuration default and permitted values live in `src/lib/ai/config.ts`.
+One configured provider makes one multimodal request with no tools, web search,
+RAG, or agent loop. `AI_PROVIDER=openai` uses the existing OpenAI Responses API
+adapter with `OPENAI_MODEL`; `AI_PROVIDER=openrouter` uses OpenRouter's
+OpenAI-compatible chat-completions endpoint with `OPENROUTER_MODEL` (default
+`qwen/qwen2.5-vl-32b-instruct:free`). Selection is deterministic and never
+falls back between providers. All keys remain server-only.
 
-Use medium reasoning effort initially. This task benefits from careful evidence
-classification and consistency, but does not justify extreme latency by
-default. Do not add `temperature` or `top_p` settings without a measured reason.
+`AI_PROVIDER=gemini` uses the official `@google/genai` SDK's Gemini
+Interactions API with `GEMINI_MODEL` (default `gemini-3.7-flash`). Gemini sends
+the approved stable instructions as `system_instruction`, then passes the
+untrusted buyer-evidence payload and validated image bytes directly as local
+base64 multimodal input. It sets `store: false`, uses no tools, grounding,
+search, remote files, URL context, agents, or code execution, and never stores
+the reference image remotely.
 
-The future Responses call should attach `techPackStructuredOutputFormat` as its
-strict `text.format` and send the prompt builder's stable instructions plus its
-separate buyer evidence. OpenAI's Structured Outputs guidance recommends a
-schema-constrained response rather than relying on an instruction to produce
-valid JSON, and notes that strict mode supports a JSON Schema subset. See the
-[official Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs).
+OpenAI uses medium reasoning effort initially. Gemini keeps its independent
+`GEMINI_THINKING_LEVEL` setting at `medium`; it does not request or expose
+thought text. Gemini also has its own `GEMINI_MAX_OUTPUT_TOKENS` (32,000) and
+`GEMINI_TIMEOUT_MS` (180,000) defaults. The OpenRouter adapter does not reuse
+either provider-specific setting or send a reasoning control implicitly. Do not
+add `temperature` or `top_p` settings without a measured reason.
+
+All three adapters reuse the canonical JSON Schema generated from
+`techPackContentSchema`. OpenAI sends it through `techPackStructuredOutputFormat`
+as strict `text.format`; OpenRouter maps the same schema to strict
+`response_format.json_schema`; Gemini Interactions sends
+`response_format: { type: 'text', mime_type: 'application/json', schema }`.
+Each sends the prompt builder's stable instructions separately from untrusted
+buyer evidence and the validated local image. Gemini reads only the SDK's final
+`interaction.output_text`, then follows the same JSON parse, canonical Zod,
+semantic validation, and one-repair pipeline as the other providers.
+
+OpenAI and OpenRouter reuse `techPackStructuredOutputFormat`, generated from the
+canonical schema. OpenAI sends it as strict `text.format`; OpenRouter maps the
+same schema to strict `response_format.json_schema`. Each sends the prompt
+builder's stable instructions separately from untrusted buyer evidence and the
+validated local image as a base64 data URL.
+
+Because strict JSON Schema support is mandatory, OpenRouter also sends
+`provider.require_parameters=true`; it does not pin or order upstream
+providers. Its output budget defaults to 32,000 tokens and its request timeout
+to 180 seconds, independently configurable with
+`OPENROUTER_MAX_OUTPUT_TOKENS` and `OPENROUTER_TIMEOUT_MS`. OpenAI retains its
+separate 12,000-token and 60-second defaults.
 
 ## Model and server responsibilities
 
@@ -109,6 +137,11 @@ fails, make exactly one repair request using the same schema and evidence. If
 the repair also fails, return a controlled generation error; do not return a
 partial draft or retry indefinitely.
 
+Gemini repair remains Gemini-only: one initial Interaction plus, only after
+canonical Zod or semantic validation fails, one Interaction using the existing
+repair prompt, original evidence, invalid output, and validation errors. There
+is no cross-provider fallback and no third call.
+
 The small later-API error taxonomy is `invalid_input`, `unsupported_image`,
 `provider_error`, `provider_timeout`, `malformed_output`,
 `semantic_validation_failed`, and `repair_failed`. UI-safe copy is centralized
@@ -133,3 +166,25 @@ exclusion, approximate/not-provided availability, repair payload error context,
 model configuration, and eval coverage. These are contract tests, not proof of
 model behavior. The catalogue is the basis for future live evals once the
 Responses API adapter exists.
+
+## Future golden diagnostic
+
+Once a real Gemini key is available, add only these server-side values to
+`.env.local`:
+
+```dotenv
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your-key
+GEMINI_MODEL=gemini-3.7-flash
+GEMINI_THINKING_LEVEL=medium
+GEMINI_MAX_OUTPUT_TOKENS=32000
+GEMINI_TIMEOUT_MS=180000
+```
+
+Then run `npm run diagnostic:build; npm run diagnostic:golden`.
+The harness invokes the same production generation service with the bucket-hat
+reference and writes one safe JSON summary only: provider/model, duration,
+provider-call count, interaction/output state, JSON/Zod/semantic results,
+repair result, final category, and the successful draft's unresolved and
+grouped-decision counts. It never prints keys, prompts, buyer text, image data,
+raw model output, or thought content.

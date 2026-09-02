@@ -1,50 +1,45 @@
 import 'server-only';
 
-import { z } from 'zod';
-
 import {
+  getAiRuntimeConfiguration as parseAiRuntimeConfiguration,
+  getGeminiRuntimeConfiguration as parseGeminiRuntimeConfiguration,
+  getOpenAiRuntimeConfiguration as parseOpenAiRuntimeConfiguration,
+  getOpenRouterRuntimeConfiguration as parseOpenRouterRuntimeConfiguration,
+} from './runtime-config';
+
+export {
+  DEFAULT_MAX_OUTPUT_TOKENS,
+  DEFAULT_GEMINI_MAX_OUTPUT_TOKENS,
+  DEFAULT_GEMINI_TIMEOUT_MS,
   DEFAULT_OPENAI_MODEL,
-  DEFAULT_REASONING_EFFORT,
-  getOpenAiModel,
-  type OpenAiModel,
-} from './config';
+  DEFAULT_OPENROUTER_MAX_OUTPUT_TOKENS,
+  DEFAULT_OPENROUTER_TIMEOUT_MS,
+  DEFAULT_PROVIDER_TIMEOUT_MS,
+  MissingOpenAiConfigurationError,
+  MissingGeminiConfigurationError,
+  MissingOpenRouterConfigurationError,
+} from './runtime-config';
+export type {
+  AiRuntimeConfiguration,
+  GeminiRuntimeConfiguration,
+  OpenAiRuntimeConfiguration,
+  OpenRouterRuntimeConfiguration,
+} from './runtime-config';
 
-export const DEFAULT_PROVIDER_TIMEOUT_MS = 60_000;
-export const DEFAULT_MAX_OUTPUT_TOKENS = 12_000;
-
-const positiveInteger = z.coerce.number().int().positive();
-
-export interface OpenAiRuntimeConfiguration {
-  apiKey: string;
-  model: OpenAiModel;
-  reasoningEffort: typeof DEFAULT_REASONING_EFFORT;
-  timeoutMs: number;
-  maxOutputTokens: number;
+/** Server-only environment access; parsing itself remains deterministic and testable. */
+export function getOpenAiRuntimeConfiguration() {
+  return parseOpenAiRuntimeConfiguration(process.env);
 }
 
-/** Thrown only on the server; its message is deliberately safe to return generically. */
-export class MissingOpenAiConfigurationError extends Error {
-  constructor() {
-    super('OpenAI server configuration is missing. Set OPENAI_API_KEY before generating.');
-    this.name = 'MissingOpenAiConfigurationError';
-  }
+export function getOpenRouterRuntimeConfiguration() {
+  return parseOpenRouterRuntimeConfiguration(process.env);
 }
 
-export function getOpenAiRuntimeConfiguration(
-  environment: Record<string, string | undefined> = process.env,
-): OpenAiRuntimeConfiguration {
-  const apiKey = environment.OPENAI_API_KEY?.trim();
-  if (apiKey === undefined || apiKey.length === 0) throw new MissingOpenAiConfigurationError();
-
-  return {
-    apiKey,
-    model: getOpenAiModel(environment),
-    reasoningEffort: DEFAULT_REASONING_EFFORT,
-    timeoutMs: positiveInteger.catch(DEFAULT_PROVIDER_TIMEOUT_MS).parse(environment.OPENAI_TIMEOUT_MS),
-    maxOutputTokens: positiveInteger
-      .catch(DEFAULT_MAX_OUTPUT_TOKENS)
-      .parse(environment.OPENAI_MAX_OUTPUT_TOKENS),
-  };
+export function getGeminiRuntimeConfiguration() {
+  return parseGeminiRuntimeConfiguration(process.env);
 }
 
-export { DEFAULT_OPENAI_MODEL };
+/** Selects only the configured server provider; there is intentionally no fallback. */
+export function getAiRuntimeConfiguration() {
+  return parseAiRuntimeConfiguration(process.env);
+}

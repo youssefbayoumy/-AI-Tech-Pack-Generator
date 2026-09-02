@@ -5,6 +5,7 @@ import { selectUnresolvedItems } from '../src/domain/tech-pack';
 import {
   generateTechPack,
   GenerationServiceError,
+  createSafeGenerationDiagnostics,
 } from '../src/lib/ai/generate-tech-pack';
 import type { TechPackProvider } from '../src/lib/ai/provider/types';
 import { groupUnresolvedForReview } from '../src/presentation/review-decisions';
@@ -78,16 +79,36 @@ describe('live generation service', () => {
       },
     };
 
-    const result = await generateTechPack(provider, serviceInput());
+    const diagnostics = createSafeGenerationDiagnostics();
+    const result = await generateTechPack(provider, { ...serviceInput(), diagnostics });
     expect(result.repairUsed).toBe(true);
     expect(generateCalls).toBe(1);
     expect(repairCalls).toBe(1);
+    expect(diagnostics).toMatchObject({
+      providerCallCount: 2,
+      repairAttempted: true,
+      zodValidationFailed: false,
+      semanticValidationFailed: true,
+      semanticValidationErrorCount: 1,
+      semanticErrors: [{
+        attempt: 'initial',
+        repairPhase: 'before_repair',
+        code: 'MEASUREMENT_MINIMUM_SIZES',
+        path: 'measurements.sizes',
+        message: 'At least three sizes are required',
+      }],
+      validationCalls: [
+        { attempt: 'initial', zod: 'success', semantic: 'failure' },
+        { attempt: 'repair', zod: 'success', semantic: 'success' },
+      ],
+    });
   });
 
   it('fails safely after an invalid repair and never makes a third call', async () => {
     const invalid = structuredClone(bucketHatContentFixture);
     invalid.measurements.sizes = [];
     let repairCalls = 0;
+    const diagnostics = createSafeGenerationDiagnostics();
     const provider: TechPackProvider = {
       generate: async () => ({ kind: 'success', output: invalid }),
       repair: async () => {
@@ -96,8 +117,13 @@ describe('live generation service', () => {
       },
     };
 
-    await expect(generateTechPack(provider, serviceInput())).rejects.toMatchObject({ code: 'repair_failed' });
+    await expect(generateTechPack(provider, { ...serviceInput(), diagnostics })).rejects.toMatchObject({ code: 'repair_failed' });
     expect(repairCalls).toBe(1);
+    expect(diagnostics.semanticErrors.length).toBeGreaterThan(1);
+    expect(diagnostics.semanticErrors.filter(({ attempt }) => attempt === 'initial').every(({ repairPhase }) => repairPhase === 'before_repair')).toBe(true);
+    expect(diagnostics.semanticErrors.filter(({ attempt }) => attempt === 'repair').every(({ repairPhase }) => repairPhase === 'after_repair')).toBe(true);
+    expect(diagnostics.semanticErrors.some(({ attempt, code }) => attempt === 'initial' && code === 'MEASUREMENT_MINIMUM_SIZES')).toBe(true);
+    expect(diagnostics.semanticErrors.some(({ attempt, code }) => attempt === 'repair' && code === 'MEASUREMENT_MINIMUM_SIZES')).toBe(true);
   });
 
   it('does not repair provider failures or malformed output', async () => {

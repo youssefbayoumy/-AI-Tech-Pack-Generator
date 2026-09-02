@@ -4,10 +4,17 @@ import { NextResponse } from 'next/server';
 
 import { generationErrorMessages, type GenerationErrorCode } from '../../../../lib/ai/errors';
 import { classifyGenerationFailure } from '../../../../lib/ai/failure-classification';
-import { generateTechPack } from '../../../../lib/ai/generate-tech-pack';
+import {
+  createSafeGenerationDiagnostics,
+  diagnosticsForServerLog,
+  generateTechPack,
+} from '../../../../lib/ai/generate-tech-pack';
 import { MAX_MULTIPART_BYTES } from '../../../../lib/ai/image/policy';
 import { validateImageBytes } from '../../../../lib/ai/image/validate';
-import { OpenAiTechPackProvider } from '../../../../lib/ai/openai/adapter';
+import { OpenAiProviderError } from '../../../../lib/ai/openai/adapter';
+import { GeminiProviderError } from '../../../../lib/ai/gemini/adapter';
+import { OpenRouterProviderError } from '../../../../lib/ai/openrouter/adapter';
+import { createTechPackProvider } from '../../../../lib/ai/provider/create';
 import {
   isFileUpload,
   parseBuyerDescription,
@@ -15,9 +22,12 @@ import {
   RequestBodyTooLargeError,
 } from '../../../../lib/ai/request-validation';
 import {
-  getOpenAiRuntimeConfiguration,
+  getAiRuntimeConfiguration,
   MissingOpenAiConfigurationError,
+  MissingGeminiConfigurationError,
+  MissingOpenRouterConfigurationError,
 } from '../../../../lib/ai/server-config';
+import type { AiRuntimeConfiguration } from '../../../../lib/ai/server-config';
 
 export const runtime = 'nodejs';
 
@@ -30,13 +40,15 @@ function safeErrorResponse(requestId: string, code: GenerationErrorCode, status:
 
 function logGeneration(event: {
   requestId: string;
+  provider?: string;
   model?: string;
   durationMs: number;
-  repairUsed?: boolean;
+  repairUsed?: boolean | null;
+  diagnostics?: ReturnType<typeof diagnosticsForServerLog>;
   outcome: string;
 }): void {
   // Deliberately excludes buyer text, image data, provider output, and secrets.
-  console.info('tech_pack_generation', event);
+  console.info(`tech_pack_generation ${JSON.stringify(event)}`);
 }
 
 export async function POST(request: Request) {
@@ -80,25 +92,31 @@ export async function POST(request: Request) {
     );
   }
 
+  let configuration: AiRuntimeConfiguration | null = null;
+  const diagnostics = createSafeGenerationDiagnostics();
   try {
-    const configuration = getOpenAiRuntimeConfiguration();
-    const result = await generateTechPack(new OpenAiTechPackProvider(configuration), {
+    configuration = getAiRuntimeConfiguration();
+    const result = await generateTechPack(createTechPackProvider(configuration), {
       requestId,
       buyerDescription,
       model: configuration.model,
       image: imageValidation.data,
+      diagnostics,
     });
     logGeneration({
       requestId,
+      provider: configuration.provider,
       model: result.model,
       durationMs: Date.now() - startedAt,
       repairUsed: result.repairUsed,
+      diagnostics: { ...diagnosticsForServerLog(diagnostics), finalErrorCategory: 'success' },
       outcome: 'success',
     });
     return NextResponse.json({
       requestId: result.requestId,
       techPack: result.techPack,
       generation: {
+        provider: configuration.provider,
         model: result.model,
         promptVersion: result.techPack.metadata.promptVersion,
         repairUsed: result.repairUsed,
@@ -106,10 +124,55 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const code = classifyGenerationFailure(error);
-    if (error instanceof MissingOpenAiConfigurationError) {
+    diagnostics.finalErrorCategory = code;
+    if (
+      error instanceof MissingOpenAiConfigurationError
+      || error instanceof MissingOpenRouterConfigurationError
+      || error instanceof MissingGeminiConfigurationError
+    ) {
       console.warn('tech_pack_generation_config_missing', { requestId });
     }
-    logGeneration({ requestId, durationMs: Date.now() - startedAt, outcome: code });
+    if (error instanceof OpenAiProviderError) {
+      console.warn('tech_pack_provider_http_error', {
+        provider: 'openai',
+        model: configuration?.model,
+        status: error.status,
+        openAiCode: error.openAiCode,
+        openAiType: error.openAiType,
+        requestId: error.openAiRequestId,
+        durationMs: Date.now() - startedAt,
+        repairUsed: null,
+      });
+    }
+    if (error instanceof OpenRouterProviderError) {
+      console.warn('tech_pack_provider_http_error', {
+        provider: 'openrouter',
+        model: configuration?.model,
+        status: error.status,
+        openRouterCode: error.openRouterCode,
+        requestId: error.openRouterRequestId,
+        durationMs: Date.now() - startedAt,
+        repairUsed: null,
+      });
+    }
+    if (error instanceof GeminiProviderError) {
+      console.warn('tech_pack_provider_http_error', {
+        provider: 'gemini',
+        model: configuration?.model,
+        status: error.status,
+        durationMs: Date.now() - startedAt,
+        repairUsed: null,
+      });
+    }
+    logGeneration({
+      requestId,
+      provider: configuration?.provider,
+      model: configuration?.model,
+      durationMs: Date.now() - startedAt,
+      repairUsed: null,
+      diagnostics: diagnosticsForServerLog(diagnostics),
+      outcome: code,
+    });
     return safeErrorResponse(requestId, code, code === 'provider_timeout' ? 504 : 502);
   }
 }

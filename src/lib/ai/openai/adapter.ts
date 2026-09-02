@@ -12,7 +12,13 @@ import type {
 import type { OpenAiRuntimeConfiguration } from '../server-config';
 
 export class OpenAiProviderError extends Error {
-  constructor(public readonly kind: 'timeout' | 'provider') {
+  constructor(
+    public readonly kind: 'timeout' | 'provider',
+    public readonly status: number | null = null,
+    public readonly openAiCode: string | null = null,
+    public readonly openAiType: string | null = null,
+    public readonly openAiRequestId: string | null = null,
+  ) {
     super(kind);
     this.name = 'OpenAiProviderError';
   }
@@ -115,7 +121,15 @@ export class OpenAiTechPackProvider implements TechPackProvider {
       if (controller.signal.aborted || (error instanceof DOMException && error.name === 'AbortError')) {
         throw new OpenAiProviderError('timeout');
       }
-      if (error instanceof APIError) throw new OpenAiProviderError('provider');
+      if (error instanceof APIError) {
+        throw new OpenAiProviderError(
+          'provider',
+          error.status ?? null,
+          error.code ?? null,
+          error.type ?? null,
+          error.requestID ?? null,
+        );
+      }
       throw new OpenAiProviderError('provider');
     } finally {
       clearTimeout(timeout);

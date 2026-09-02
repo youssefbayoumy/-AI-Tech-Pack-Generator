@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": ".diagnostic-build",
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "scripts/gemini-isolation-diagnostic.ts", "scripts/tech-pack-generation-diagnostic.ts", "scripts/server-only.d.ts"],
+  "exclude": ["tests", "dist", ".diagnostic-build"]
+}

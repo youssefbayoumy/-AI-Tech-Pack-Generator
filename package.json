@@ -7,12 +7,16 @@
     "build": "next build",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "dev": "next dev",
+    "diagnostic:build": "tsc -p tsconfig.diagnostic.json",
+    "diagnostic:gemini-isolation": "node --loader ./scripts/server-only-loader.mjs ./.diagnostic-build/scripts/gemini-isolation-diagnostic.js",
+    "diagnostic:golden": "npm run diagnostic:build && node --loader ./scripts/server-only-loader.mjs ./.diagnostic-build/scripts/tech-pack-generation-diagnostic.js",
     "lint": "eslint .",
     "test": "vitest run",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@google/genai": "^2.20.0",
     "next": "^16.3.4",
     "openai": "^7.9.0",
     "react": "^19.2.8",
