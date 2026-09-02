@@ -26,7 +26,7 @@ import { techPackGenerationEvalCases, baseImageDescriptor } from './fixtures/ai-
 
 describe('AI-generation prompt contract', () => {
   it('keeps required stable policies in the versioned generation prefix', () => {
-    expect(TECH_PACK_GENERATION_PROMPT_VERSION).toBe('tech-pack-v1');
+    expect(TECH_PACK_GENERATION_PROMPT_VERSION).toBe('tech-pack-v2');
     for (const policy of [
       'TRUST BOUNDARY',
       'EVIDENCE RULES',
@@ -39,6 +39,8 @@ describe('AI-generation prompt contract', () => {
     }
     expect(TECH_PACK_GENERATION_INSTRUCTIONS).toContain('not_provided');
     expect(TECH_PACK_GENERATION_INSTRUCTIONS).toContain('approximate');
+    expect(TECH_PACK_GENERATION_INSTRUCTIONS).toContain('For every applicable manufacturing field');
+    expect(TECH_PACK_GENERATION_INSTRUCTIONS).toContain('thread, eyelets, drawcord hardware');
   });
 
   it('separates untrusted buyer content from stable instructions', () => {

@@ -66,6 +66,7 @@ export const geminiTechPackDraftSchema = z.object({
     order: z.number().int().positive().optional(),
     area: nullableString,
     instruction: requiredString,
+    notes: nullableString,
   })).min(1),
 
   colorConfiguration: z.object({
@@ -237,6 +238,7 @@ export const geminiTechPackDraftJsonSchema: JsonSchema = {
           ...stringFields([
             'id',
             'area',
+            'notes',
           ]),
 
           order: {

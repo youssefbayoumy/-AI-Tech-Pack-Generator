@@ -40,14 +40,14 @@ function renderCard(isEditing: boolean, decision = sizeDecision()): string {
 }
 
 describe('review specification interaction presentation', () => {
-  it('shows only the three concise decision summaries and the missing-details action', () => {
+  it('shows the two proposal-led summaries and immediate optional actions', () => {
     const markup = renderCard(false);
 
-    expect(markup).toContain('>ADD MISSING DETAILS</button>');
-    expect(markup).not.toContain('CONFIRM PROPOSED VALUES');
+    expect(markup).toContain('>EDIT PROPOSED VALUES</button>');
+    expect(markup).toContain('>ACCEPT PROPOSED VALUES</button>');
     expect(visibleText(markup)).toContain('BUYER PROVIDED');
     expect(visibleText(markup)).toContain('AI PROPOSED');
-    expect(visibleText(markup)).toContain('NEEDS YOUR INPUT');
+    expect(visibleText(markup)).not.toContain('NEEDS YOUR INPUT');
     expect(visibleText(markup)).not.toContain('Why it matters');
     expect(visibleText(markup)).not.toContain('Not specified');
     expect(visibleText(markup)).not.toContain('Review questions');
@@ -57,16 +57,16 @@ describe('review specification interaction presentation', () => {
     const markup = renderCard(true);
     const text = visibleText(markup);
 
-    expect(text).toContain('ADD SPECIFICATIONS');
-    expect(text).toContain('Fill only what you know. Unfilled fields stay unresolved.');
-    expect(text).toContain('Head opening circumference — Tolerance');
-    expect(text).toContain('Save specifications');
+    expect(text).toContain('EDIT PROPOSED VALUES');
+    expect(text).toContain('Adjust only the proposed values you want to replace.');
+    expect(text).toContain('Head opening circumference — Size S');
+    expect(text).toContain('Save proposed changes');
     expect(text).toContain('Cancel');
-    expect(markup).not.toContain('>Add specification</button>');
+    expect(markup).not.toContain('ADD MISSING DETAILS');
     expect(text).not.toMatch(/pom-|bom-|size-[sml]/i);
   });
 
-  it('shows confirmation only after all required details are resolved', () => {
+  it('shows acceptance immediately when proposals exist', () => {
     const proposedOnlyDecision = groupUnresolvedForReview(
       selectUnresolvedItems(bucketHatContentFixture).filter((item) => item.valueState === 'proposed'),
       selectBuyerProvidedReviewItems(bucketHatContentFixture),
@@ -75,7 +75,7 @@ describe('review specification interaction presentation', () => {
 
     const markup = renderCard(false, proposedOnlyDecision);
 
-    expect(markup).toContain('>CONFIRM PROPOSED VALUES</button>');
+    expect(markup).toContain('>ACCEPT PROPOSED VALUES</button>');
     expect(markup).not.toContain('ADD MISSING DETAILS');
     expect(markup).not.toContain('disabled=""');
   });

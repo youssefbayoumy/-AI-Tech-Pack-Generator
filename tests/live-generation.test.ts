@@ -37,7 +37,7 @@ describe('live generation service', () => {
     expect(result.repairUsed).toBe(false);
     expect(result.techPack.metadata).toMatchObject({
       schemaVersion: '1.0.0',
-      promptVersion: 'tech-pack-v1',
+      promptVersion: 'tech-pack-v2',
       imageFingerprint: image.fingerprint,
       lifecycleStatus: 'draft_not_approved_for_production',
     });

@@ -35,41 +35,18 @@ function unresolvedReason(source: ClaimSource): string {
   }
 }
 
-function isOptionalMissingField(
-  canonicalPath: string,
-  section: TechPackSection,
-  source: ClaimSource,
-  value: unknown,
-): boolean {
-  return (
-    section === 'construction' &&
-    canonicalPath.endsWith('.notes') &&
-    source === 'not_provided' &&
-    value === null
-  );
-}
-
 export function selectUnresolvedItems(
   content: TechPackContent,
 ): UnresolvedItem[] {
   return collectClaimLocations(content)
-    .filter(({ canonicalPath, section, claim }) => {
+    .filter(({ claim }) => {
       if (claim.confirmationStatus !== 'needs_confirmation') {
         return false;
       }
-
-      if (
-        isOptionalMissingField(
-          canonicalPath,
-          section,
-          claim.source,
-          claim.value,
-        )
-      ) {
-        return false;
-      }
-
-      return true;
+      // The review workflow is proposal-led: an absent value is not a buyer
+      // task. Gemini is instructed to propose every applicable value, while
+      // null/non-applicable fields stay out of the review queue.
+      return claim.value !== null;
     })
     .map(({ canonicalPath, section, fieldLabel, unit, claim }) => ({
       id: `unresolved:${canonicalPath}`,

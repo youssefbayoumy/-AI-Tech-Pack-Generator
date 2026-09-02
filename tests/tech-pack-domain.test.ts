@@ -212,7 +212,7 @@ describe('needs-confirmation and review transitions', () => {
     const unresolved = selectUnresolvedItems(bucketHatContentFixture);
     expect(unresolved.length).toBeGreaterThan(20);
     expect(unresolved.every((item) => item.id.startsWith('unresolved:'))).toBe(true);
-    expect(unresolved.some((item) => item.valueState === 'unknown')).toBe(true);
+    expect(unresolved.some((item) => item.valueState === 'unknown')).toBe(false);
     expect(unresolved.some((item) => item.valueState === 'proposed')).toBe(true);
     expect(
       unresolved.some(
@@ -242,8 +242,10 @@ describe('needs-confirmation and review transitions', () => {
     if (proposed === undefined) throw new Error('Fixture must have a proposed measurement');
 
     const confirmed = confirmClaim(proposed, 'Buyer confirmed during tech-pack review.');
-    expect(confirmed.source).toBe('buyer');
+    expect(confirmed.source).toBe('ai_assumption');
     expect(confirmed.confirmationStatus).toBe('confirmed_by_buyer');
+    expect(confirmed.sourceDetail).toBe(proposed.sourceDetail);
+    expect(confirmed.evidenceRefs).toEqual(proposed.evidenceRefs);
     expect(confirmed.review).toMatchObject({
       action: 'buyer_confirmed',
       previousSource: 'ai_assumption',

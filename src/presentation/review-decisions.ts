@@ -2,9 +2,7 @@ import type { ClaimPrecision, TechPackContent, UnresolvedItem } from '../domain/
 import { collectClaimLocations } from '../domain/tech-pack/claim-locations';
 
 export type ReviewDecisionAction =
-  | 'add_specification'
-  | 'confirm_proposed_values'
-  | 'add_and_confirm';
+  | 'confirm_proposed_values';
 
 export interface ReviewDecision {
   id: string;
@@ -122,15 +120,6 @@ export function selectBuyerProvidedReviewItems(content: TechPackContent): Review
     }));
 }
 
-function actionFor(
-  proposedItems: UnresolvedItem[],
-  unknownItems: UnresolvedItem[],
-): ReviewDecisionAction {
-  if (unknownItems.length === 0) return 'confirm_proposed_values';
-  if (proposedItems.length === 0) return 'add_specification';
-  return 'add_and_confirm';
-}
-
 /**
  * Converts canonical unresolved claims into prioritized buyer decisions. Every
  * input claim appears exactly once in the result; no review state is stored.
@@ -161,7 +150,7 @@ export function groupUnresolvedForReview(
         proposedItems,
         unknownItems,
         buyerProvidedItems: decisionBuyerProvidedItems,
-        action: actionFor(proposedItems, unknownItems),
+        action: 'confirm_proposed_values' as const,
       };
     })
     .sort((left, right) => left.priority - right.priority || left.id.localeCompare(right.id));

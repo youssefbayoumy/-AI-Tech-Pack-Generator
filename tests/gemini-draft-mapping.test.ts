@@ -10,11 +10,11 @@ function mappedDraft() {
   return mapGeminiDraftToTechPackContent({
     product: { name: 'Plain cotton bucket hat', category: 'Headwear', description: 'Plain cotton bucket hat', intendedUse: 'First production run', reversible: true },
     bom: [
-      { id: 'shell-a', component: 'Shell', placement: 'Side A', material: 'Cotton', composition: null, specification: 'Cotton fabric', gsm: '~280 GSM', gsmApproximate: true, color: 'Khaki', quantity: null, unit: null, notes: null },
-      { id: 'shell-b', component: 'Shell', placement: 'Side B', material: 'Cotton', composition: null, specification: null, gsm: null, color: 'Black', quantity: null, unit: null, notes: null },
+      { id: 'shell-a', component: 'Shell', placement: 'Side A', material: 'Cotton', composition: '100% cotton', specification: 'Cotton fabric', gsm: '~280 GSM', gsmApproximate: true, color: 'Khaki', quantity: 0.35, unit: 'm', notes: 'Pre-shrunk and colorfast.' },
+      { id: 'shell-b', component: 'Shell', placement: 'Side B', material: 'Cotton', composition: '100% cotton', specification: 'Cotton fabric', gsm: 280, color: 'Black', quantity: 0.35, unit: 'm', notes: 'Pre-shrunk and colorfast.' },
     ],
-    measurements: { unit: 'cm', sizes: ['S', 'M', 'L'], points: [{ id: 'opening', name: 'Opening circumference', instruction: 'Measure around opening.', values: [56, 58, 60], tolerance: null }] },
-    construction: [{ id: 'join', order: 1, area: 'Crown', instruction: 'Join crown and brim.' }],
+    measurements: { unit: 'cm', sizes: ['S', 'M', 'L'], points: [{ id: 'opening', name: 'Opening circumference', instruction: 'Measure around opening.', values: [56, 58, 60], tolerance: 0.5 }] },
+    construction: [{ id: 'join', order: 1, area: 'Crown', instruction: 'Join crown and brim.', notes: 'Use a 1 cm seam allowance and 10 SPI.' }],
     colorConfiguration: { type: 'reversible', sideA: 'Khaki', sideB: 'Black' },
     evidence: [
       { path: 'product.name', source: 'buyer', detail: 'Plain cotton bucket hat', confirmationRequired: false },
@@ -64,11 +64,12 @@ describe('Gemini compact draft mapper', () => {
     }
   });
 
-  it('preserves unknown composition, tolerance, and notes as canonical unknowns', () => {
+  it('maps applicable absent manufacturing values as AI proposals', () => {
     const content = mappedDraft();
-    expect(content.billOfMaterials.items[0]!.composition).toMatchObject({ value: null, source: 'not_provided', precision: 'unknown' });
-    expect(content.measurements.points[0]!.tolerance).toMatchObject({ value: null, source: 'not_provided', precision: 'unknown' });
-    expect(content.construction.instructions[0]!.notes).toMatchObject({ value: null, source: 'not_provided', precision: 'unknown' });
+    expect(content.billOfMaterials.items[0]!.composition).toMatchObject({ value: '100% cotton', source: 'ai_assumption', confirmationStatus: 'needs_confirmation' });
+    expect(content.billOfMaterials.items[0]!.quantity).toMatchObject({ value: { amount: 0.35, unit: 'm' }, source: 'ai_assumption' });
+    expect(content.measurements.points[0]!.tolerance).toMatchObject({ value: 0.5, source: 'ai_assumption' });
+    expect(content.construction.instructions[0]!.notes).toMatchObject({ value: 'Use a 1 cm seam allowance and 10 SPI.', source: 'ai_assumption' });
   });
 
   it('maps reversible khaki/black sides and the matching BOM rows', () => {
@@ -134,6 +135,11 @@ describe('Gemini compact draft mapper', () => {
       cell.measurement.source === 'ai_assumption'
       && cell.measurement.confirmationStatus === 'needs_confirmation')).toBe(true);
     expect(content.construction.instructions[0]!.instruction.source).toBe('ai_assumption');
+    expect(content.billOfMaterials.items[2]!.weightGsm).toMatchObject({
+      value: null,
+      source: 'derived',
+      confirmationStatus: 'not_applicable',
+    });
   });
 
   it('accepts intentional reference-board annotations through compact and canonical path aliases', () => {

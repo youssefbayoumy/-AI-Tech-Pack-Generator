@@ -52,6 +52,19 @@ function unknown<T>(label: string): Claim<T> {
   return { value: null, precision: 'unknown', source: 'not_provided', sourceDetail: `No reliable ${label} was provided.`, evidenceRefs: [], derivedFrom: [], confirmationStatus: 'needs_confirmation', confirmationQuestion: `Provide ${label}.`, rationale: 'No reliable value was supplied.', review: null };
 }
 
+function notApplicable<T>(label: string, dependency: string): Claim<T> {
+  return { value: null, precision: 'unknown', source: 'derived', sourceDetail: `${label} is not applicable to this component.`, evidenceRefs: [], derivedFrom: [dependency], confirmationStatus: 'not_applicable', confirmationQuestion: null, rationale: 'Deterministic non-applicability; no manufacturing value was invented.', review: null };
+}
+
+function acceptsFabricGsm(item: { component?: string | null; material?: string | null; placement?: string | null }): boolean {
+  const context = [item.component, item.material, item.placement]
+    .filter((value): value is string => typeof value === 'string')
+    .join(' ')
+    .toLocaleLowerCase('en');
+  if (/\b(?:thread|eyelet|grommet|drawcord|cord|zipper|zip|button|snap|hardware)\b/.test(context)) return false;
+  return true;
+}
+
 function normalizedWords(value: string): string[] {
   const stopWords = new Set([
     'a', 'an', 'and', 'apply', 'at', 'by', 'for', 'from', 'in', 'is', 'of', 'on', 'the',
@@ -243,6 +256,7 @@ export function mapGeminiDraftToTechPackContent(rawDraft: unknown, buyerDescript
 
   const bomIds = new Set<string>();
   const bom = (draft.bom ?? []).map((item, index) => {
+    const bomId = uniqueId(text(item.id), `bom-${index + 1}`, bomIds);
     const color = text(item.color); const sideA = text(colors.sideA)?.toLocaleLowerCase('en'); const sideB = text(colors.sideB)?.toLocaleLowerCase('en');
     const normalizedColor = color?.toLocaleLowerCase('en'); const placement = text(item.placement)?.toLocaleLowerCase('en') ?? '';
     const reversibleSideId = !isReversible ? null : normalizedColor !== null && normalizedColor === sideA ? 'side-a' : normalizedColor !== null && normalizedColor === sideB ? 'side-b' : placement.includes('side a') ? 'side-a' : placement.includes('side b') ? 'side-b' : null;
@@ -251,13 +265,15 @@ export function mapGeminiDraftToTechPackContent(rawDraft: unknown, buyerDescript
       : unknown<{ amount: number; unit: string }>(`BOM quantity ${index + 1}`);
     const gsm = numberFromGsm(item.gsm);
     return {
-      id: uniqueId(text(item.id), `bom-${index + 1}`, bomIds),
+      id: bomId,
       component: claimFor(text(item.component), `bom[${index}].component`, `BOM component ${index + 1}`, evidence, buyerDescription),
       placement: claimFor(text(item.placement), `bom[${index}].placement`, `BOM placement ${index + 1}`, evidence, buyerDescription),
       material: claimFor(text(item.material), `bom[${index}].material`, `BOM material ${index + 1}`, evidence, buyerDescription, false, { allowDescriptionEvidence: index === 0 || reversibleSideId !== null }),
       composition: claimFor(text(item.composition), `bom[${index}].composition`, `BOM composition ${index + 1}`, evidence, buyerDescription),
       specification: claimFor(text(item.specification), `bom[${index}].specification`, `BOM specification ${index + 1}`, evidence, buyerDescription, item.gsmApproximate === true),
-      weightGsm: claimFor(gsm, `bom[${index}].gsm`, `BOM GSM ${index + 1}`, evidence, buyerDescription, item.gsmApproximate === true || (typeof item.gsm === 'string' && item.gsm.includes('~'))),
+      weightGsm: acceptsFabricGsm(item)
+        ? claimFor(gsm, `bom[${index}].gsm`, `BOM GSM ${index + 1}`, evidence, buyerDescription, item.gsmApproximate === true || (typeof item.gsm === 'string' && item.gsm.includes('~')))
+        : notApplicable<number>(`Fabric GSM for BOM item ${index + 1}`, `billOfMaterials.items[${bomId}].component`),
       color: claimFor(color, `bom[${index}].color`, `BOM color ${index + 1}`, evidence, buyerDescription, false, { allowDescriptionEvidence: index === 0 || reversibleSideId !== null }), quantity,
       notes: claimFor(text(item.notes), `bom[${index}].notes`, `BOM notes ${index + 1}`, evidence, buyerDescription), reversibleSideId,
     };
@@ -276,7 +292,7 @@ export function mapGeminiDraftToTechPackContent(rawDraft: unknown, buyerDescript
   const constructionIds = new Set<string>();
   const construction = (draft.construction ?? []).map((item, index) => ({
     id: uniqueId(text(item.id), `construction-${index + 1}`, constructionIds), sequence: item.order ?? index + 1,
-    componentArea: text(item.area) ?? 'general', instruction: claimFor(text(item.instruction), `construction[${index}].instruction`, `construction instruction ${index + 1}`, evidence, buyerDescription, false, { allowSameFieldEvidence: true }), notes: unknown<string>(`construction notes ${index + 1}`),
+    componentArea: text(item.area) ?? 'general', instruction: claimFor(text(item.instruction), `construction[${index}].instruction`, `construction instruction ${index + 1}`, evidence, buyerDescription, false, { allowSameFieldEvidence: true }), notes: claimFor(text(item.notes), `construction[${index}].notes`, `construction notes ${index + 1}`, evidence, buyerDescription),
   }));
   const side = (id: 'side-a' | 'side-b', label: string, value: string | null, path: string) => ({ id, label, color: claimFor(value, path, `${label} color`, evidence, buyerDescription) });
   const reversibleSides = isReversible ? [side('side-a', 'Side A', text(colors.sideA), 'colorConfiguration.sideA'), side('side-b', 'Side B', text(colors.sideB), 'colorConfiguration.sideB')] : [];

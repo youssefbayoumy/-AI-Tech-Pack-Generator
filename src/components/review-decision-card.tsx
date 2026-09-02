@@ -56,36 +56,53 @@ function ReviewSpecificationEditor({
   onCancel: () => void;
   onSave: (specifications: BuyerSpecification[]) => void;
 }>) {
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [booleanValues, setBooleanValues] = useState<Record<string, '' | 'true' | 'false'>>({});
+  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(
+    decision.proposedItems.flatMap((item) => {
+      const kind = specificationInputKind(item.canonicalPath);
+      if (kind === 'quantity' && typeof item.currentValue === 'object' && item.currentValue !== null && 'amount' in item.currentValue && 'unit' in item.currentValue) {
+        const quantity = item.currentValue as { amount: number; unit: string };
+        return [[`${item.canonicalPath}:amount`, String(quantity.amount)], [`${item.canonicalPath}:unit`, quantity.unit]];
+      }
+      return kind === 'boolean' ? [] : [[item.canonicalPath, String(item.currentValue ?? '')]];
+    }),
+  ));
+  const [booleanValues, setBooleanValues] = useState<Record<string, '' | 'true' | 'false'>>(() => Object.fromEntries(
+    decision.proposedItems
+      .filter((item) => specificationInputKind(item.canonicalPath) === 'boolean')
+      .map((item) => [item.canonicalPath, item.currentValue === true ? 'true' : 'false'] as const),
+  ));
 
   const setValue = (key: string, value: string) => {
     setValues((current) => ({ ...current, [key]: value }));
   };
 
   const specifications = (): BuyerSpecification[] =>
-  decision.unknownItems.flatMap((item): BuyerSpecification[] => {
+  decision.proposedItems.flatMap((item): BuyerSpecification[] => {
     const kind = specificationInputKind(item.canonicalPath);
     if (kind === 'quantity') {
       const amount = Number(values[`${item.canonicalPath}:amount`]);
       const unit = values[`${item.canonicalPath}:unit`]?.trim();
-      return Number.isFinite(amount) && amount > 0 && unit !== undefined && unit.length > 0
+      const original = item.currentValue as { amount: number; unit: string } | null;
+      return Number.isFinite(amount) && amount > 0 && unit !== undefined && unit.length > 0 &&
+        (amount !== original?.amount || unit !== original.unit)
         ? [{ canonicalPath: item.canonicalPath, value: { amount, unit } }]
         : [];
     }
     if (kind === 'number') {
       const rawValue = values[item.canonicalPath]?.trim();
       const value = rawValue === undefined || rawValue.length === 0 ? Number.NaN : Number(rawValue);
-      return Number.isFinite(value) ? [{ canonicalPath: item.canonicalPath, value }] : [];
+      return Number.isFinite(value) && value !== item.currentValue
+        ? [{ canonicalPath: item.canonicalPath, value }]
+        : [];
     }
     if (kind === 'boolean') {
       const value = booleanValues[item.canonicalPath];
-      return value === 'true' || value === 'false'
+      return (value === 'true' || value === 'false') && (value === 'true') !== item.currentValue
         ? [{ canonicalPath: item.canonicalPath, value: value === 'true' }]
         : [];
     }
     const value = values[item.canonicalPath]?.trim();
-    return value === undefined || value.length === 0
+    return value === undefined || value.length === 0 || value === item.currentValue
       ? []
       : [{ canonicalPath: item.canonicalPath, value }];
   });
@@ -96,10 +113,10 @@ function ReviewSpecificationEditor({
   };
 
   return <form className="specification-editor" aria-label={`${decision.title} specifications`} onSubmit={(event) => { event.preventDefault(); save(); }}>
-    <p className="eyebrow">ADD SPECIFICATIONS</p>
-    <p className="specification-editor__help">Fill only what you know. Unfilled fields stay unresolved.</p>
+    <p className="eyebrow">EDIT PROPOSED VALUES</p>
+    <p className="specification-editor__help">Adjust only the proposed values you want to replace. Unchanged proposals remain AI-proposed.</p>
     <div className="specification-editor__fields">
-      {decision.unknownItems.map((item) => {
+      {decision.proposedItems.map((item) => {
         const kind = specificationInputKind(item.canonicalPath);
         const inputId = `specification-${item.id}`;
         return <div className="specification-editor__field" key={item.id}>
@@ -116,7 +133,7 @@ function ReviewSpecificationEditor({
         </div>;
       })}
     </div>
-    <div className="specification-editor__actions"><button className="button button--primary" type="submit" disabled={specifications().length === 0}>Save specifications</button><button className="button button--secondary" type="button" onClick={onCancel}>Cancel</button></div>
+    <div className="specification-editor__actions"><button className="button button--primary" type="submit" disabled={specifications().length === 0}>Save proposed changes</button><button className="button button--secondary" type="button" onClick={onCancel}>Cancel</button></div>
   </form>;
 }
 
@@ -129,19 +146,16 @@ export function ReviewDecisionCard({
   onSaveSpecifications,
   onConfirmProposedValues,
 }: Readonly<ReviewDecisionCardProps>) {
-  const hasMissingSpecifications = decision.unknownItems.length > 0;
   return <article className="review-card" id={decision.id}>
     <div className="review-card__number">{String(index + 1).padStart(2, '0')}</div>
     <div className="review-card__body"><div className="review-card__title"><h2>{decision.title}</h2></div>
       <div className="decision-columns">
         <div className="decision-values decision-values--buyer"><p className="eyebrow">BUYER PROVIDED</p>{decision.buyerProvidedItems.length === 0 ? <p className="decision-empty">None supplied</p> : decision.buyerProvidedItems.slice(0, displayedItems).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>{readableReviewValue(item.currentValue, item.precision === 'approximate' ? item.precision : undefined, item.unit)}</span></p>)}{decision.buyerProvidedItems.length > displayedItems ? <p className="decision-more">+ {decision.buyerProvidedItems.length - displayedItems} more</p> : null}</div>
         <div className="decision-values"><p className="eyebrow">AI PROPOSED</p>{decision.proposedItems.length === 0 ? <p className="decision-empty">No proposal</p> : decision.proposedItems.slice(0, displayedItems).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>{readableReviewValue(item.currentValue, undefined, item.unit)}</span></p>)}{decision.proposedItems.length > displayedItems ? <p className="decision-more">+ {decision.proposedItems.length - displayedItems} more</p> : null}</div>
-        <div className="decision-values decision-values--unknown"><p className="eyebrow">NEEDS YOUR INPUT</p>{decision.unknownItems.length === 0 ? <p className="decision-empty">No missing details</p> : decision.unknownItems.slice(0, displayedItems).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong></p>)}{decision.unknownItems.length > displayedItems ? <p className="decision-more">+ {decision.unknownItems.length - displayedItems} more</p> : null}</div>
       </div>
       {isEditing ? <ReviewSpecificationEditor decision={decision} onCancel={onCancelEditing} onSave={onSaveSpecifications} /> : null}
       <div className="review-card__actions">
-        {hasMissingSpecifications && !isEditing ? <button type="button" className="button button--primary" onClick={onStartEditing}>ADD MISSING DETAILS</button> : null}
-        {!hasMissingSpecifications && decision.proposedItems.length > 0 ? <button type="button" className="button button--primary" onClick={onConfirmProposedValues}>CONFIRM PROPOSED VALUES</button> : null}
+        {!isEditing && decision.proposedItems.length > 0 ? <><button type="button" className="button button--secondary" onClick={onStartEditing}>EDIT PROPOSED VALUES</button><button type="button" className="button button--primary" onClick={onConfirmProposedValues}>ACCEPT PROPOSED VALUES</button></> : null}
       </div>
     </div>
   </article>;

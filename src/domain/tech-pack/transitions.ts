@@ -10,13 +10,10 @@ export function confirmClaim<T>(claim: Claim<T>, buyerDetail: string): Claim<T> 
   if (claim.value === null) {
     throw new Error('An unknown claim cannot be confirmed without a value');
   }
+  requireDetail(buyerDetail);
 
   return {
     ...claim,
-    source: 'buyer',
-    sourceDetail: requireDetail(buyerDetail),
-    evidenceRefs: [],
-    derivedFrom: [],
     confirmationStatus: 'confirmed_by_buyer',
     confirmationQuestion: null,
     review: {

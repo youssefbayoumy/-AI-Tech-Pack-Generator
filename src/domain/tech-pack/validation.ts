@@ -124,12 +124,17 @@ function validateClaims(content: TechPackContent, errors: ValidationError[]): vo
     }
 
     if (claim.source === 'visual_inference' || claim.source === 'ai_assumption') {
-      if (claim.value === null || claim.confirmationStatus !== 'needs_confirmation') {
+      const buyerAcceptedProposal = claim.confirmationStatus === 'confirmed_by_buyer'
+        && claim.review?.action === 'buyer_confirmed';
+      if (
+        claim.value === null ||
+        (claim.confirmationStatus !== 'needs_confirmation' && !buyerAcceptedProposal)
+      ) {
         errors.push(
           error(
             'UNCONFIRMED_SOURCE_STATUS_INVALID',
             `${canonicalPath}.confirmationStatus`,
-            'Visual inferences and AI assumptions must be non-null and require confirmation',
+            'Visual inferences and AI assumptions must be non-null and require confirmation unless explicitly accepted by the buyer',
           ),
         );
       }
@@ -183,15 +188,12 @@ function validateClaims(content: TechPackContent, errors: ValidationError[]): vo
       );
     }
 
-    if (
-      claim.review !== null &&
-      (claim.source !== 'buyer' || claim.confirmationStatus !== 'confirmed_by_buyer')
-    ) {
+    if (claim.review !== null && claim.confirmationStatus !== 'confirmed_by_buyer') {
       errors.push(
         error(
           'CLAIM_REVIEW_TRANSITION_INVALID',
           `${canonicalPath}.review`,
-          'A reviewed claim must be buyer-sourced and buyer-confirmed',
+          'A reviewed claim must be buyer-confirmed',
         ),
       );
     }
@@ -299,7 +301,8 @@ function validateMeasurements(content: TechPackContent, errors: ValidationError[
       const claim = cell.measurement;
       if (
         (claim.source === 'ai_assumption' || claim.source === 'visual_inference') &&
-        claim.confirmationStatus !== 'needs_confirmation'
+        claim.confirmationStatus !== 'needs_confirmation' &&
+        claim.review?.action !== 'buyer_confirmed'
       ) {
         errors.push(
           error(
@@ -314,7 +317,8 @@ function validateMeasurements(content: TechPackContent, errors: ValidationError[
     const tolerance = point.tolerance;
     if (
       (tolerance.source === 'ai_assumption' || tolerance.source === 'visual_inference') &&
-      tolerance.confirmationStatus !== 'needs_confirmation'
+      tolerance.confirmationStatus !== 'needs_confirmation' &&
+      tolerance.review?.action !== 'buyer_confirmed'
     ) {
       errors.push(
         error(

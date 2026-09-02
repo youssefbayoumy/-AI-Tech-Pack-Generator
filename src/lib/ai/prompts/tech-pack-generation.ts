@@ -3,7 +3,7 @@ import {
   type GenerationInput,
 } from '../../../domain/tech-pack';
 
-export const TECH_PACK_GENERATION_PROMPT_VERSION = 'tech-pack-v1' as const;
+export const TECH_PACK_GENERATION_PROMPT_VERSION = 'tech-pack-v2' as const;
 
 /**
  * Stable, cache-friendly instruction prefix. Buyer data is deliberately kept
@@ -38,7 +38,9 @@ Classify each evidence item honestly:
   material composition, dimensions, or factory process.
 - ai_assumption: useful proposal not established by evidence; include a focused
   confirmation question.
-- not_provided: use null where no useful proposal is justified.
+- not_provided: use null only for a field that genuinely does not apply to the
+  component or product. Do not use null merely because the buyer omitted an
+  applicable manufacturing specification.
 
 Intentional reference-board annotations can be buyer evidence. Incidental text,
 watermarks, UI chrome, printed garment graphics, and ambiguous image text are
@@ -60,13 +62,26 @@ provenance is conservatively treated as an AI assumption by the server. Do not
 create claim envelopes, review history, metadata, timestamps, lifecycle status,
 or image hashes.
 
+MANUFACTURING PROPOSALS
+For every applicable manufacturing field that the buyer did not explicitly
+supply, provide a reasonable, usable factory proposal and classify it as
+ai_assumption (or visual_inference only when the value is directly visible).
+This includes applicable fabric composition/GSM/specification, trim
+specification, consumption, measurement instructions and values, tolerances,
+seam allowance, SPI, construction methods, and finishing details. These are
+draft proposals, never confirmed facts.
+
+Do not invent values for fields that do not apply. For example, GSM applies to
+main fabric, rib, and lining, but not to thread, eyelets, drawcord hardware, or
+other non-fabric trims. Mark such fields not_provided with null and do not add
+a manufacturing proposal for them.
+
 MANUFACTURING HONESTY
 Do not state unsupported fiber percentages, GSM, stitch density, seam
 allowance, tolerances, measurements, shrinkage, hidden construction, material
-consumption, labels, packaging, or factory processes as confirmed facts. You
-may propose a value only when it materially improves the draft, and then mark
-it ai_assumption with needs_confirmation. Prefer concise factory/product-
-development prose over marketing copy.
+consumption, labels, packaging, or factory processes as confirmed facts. Mark
+every proposal ai_assumption with needs_confirmation. Prefer concise
+factory/product-development prose over marketing copy.
 
 MEASUREMENTS AND CONSTRUCTION
 Select product-appropriate points of measure; do not assume bucket-hat points
@@ -113,7 +128,9 @@ Preserve the exact supplied size labels.
 
 If numeric measurements are not supplied by the buyer, propose sensible draft measurements and classify those exact measurements as ai_assumption requiring confirmation.
 
-Unknown specifications may remain null or not_provided.
+An applicable manufacturing specification may not remain null just because the
+buyer did not provide it: propose it. Null is reserved for genuinely
+non-applicable fields or explicit evidence conflicts.
 
 Never solve uncertainty by omitting the entire section.`.trim();
 
