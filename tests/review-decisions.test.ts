@@ -97,10 +97,12 @@ describe('review-decision presentation adapter', () => {
     );
     const after = groupUnresolvedForReview(selectUnresolvedItems(confirmed));
 
-    expect(after.find((decision) => decision.id === 'size_specification')?.items).toHaveLength(
+      expect(after.find((decision) => decision.id === 'size_specification')?.items).toHaveLength(
       (before.find((decision) => decision.id === 'size_specification')?.items.length ?? 0) - 1,
     );
-    expect(after.flatMap((decision) => decision.items)).toHaveLength(50);
+    expect(after.flatMap((decision) => decision.items)).toHaveLength(
+      before.flatMap((decision) => decision.items).length - 1,
+    );
   });
 
   it('uses contextual presentation labels without exposing canonical IDs', () => {

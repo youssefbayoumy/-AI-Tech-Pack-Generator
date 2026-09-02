@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { bucketHatDocumentFixture } from '../../demo/bucket-hat';
 import {
@@ -21,8 +21,10 @@ import {
 
 interface TechPackState {
   document: TechPackDocument | null;
+  buyerReferenceImageUrl: string | null;
   reviewDecisions: ReviewDecision[];
   loadChallengeFixture: () => void;
+  setBuyerReferenceImage: (image: File | null) => void;
   setGeneratedDocument: (document: TechPackDocument) => void;
   confirmReviewDecision: (decision: ReviewDecision) => void;
   applyBuyerSpecifications: (specifications: Array<{
@@ -35,6 +37,23 @@ const TechPackContext = createContext<TechPackState | null>(null);
 
 export function TechPackProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [document, setDocument] = useState<TechPackDocument | null>(null);
+  const [buyerReferenceImageUrl, setBuyerReferenceImageUrl] = useState<string | null>(null);
+  const buyerReferenceImageUrlRef = useRef<string | null>(null);
+
+  const setBuyerReferenceImage = useCallback((image: File | null) => {
+    if (buyerReferenceImageUrlRef.current !== null) {
+      URL.revokeObjectURL(buyerReferenceImageUrlRef.current);
+    }
+    const nextUrl = image === null ? null : URL.createObjectURL(image);
+    buyerReferenceImageUrlRef.current = nextUrl;
+    setBuyerReferenceImageUrl(nextUrl);
+  }, []);
+
+  useEffect(() => () => {
+    if (buyerReferenceImageUrlRef.current !== null) {
+      URL.revokeObjectURL(buyerReferenceImageUrlRef.current);
+    }
+  }, []);
 
   const loadChallengeFixture = useCallback(() => {
     setDocument(structuredClone(bucketHatDocumentFixture));
@@ -92,13 +111,15 @@ export function TechPackProvider({ children }: Readonly<{ children: React.ReactN
   const value = useMemo<TechPackState>(
     () => ({
       document,
+      buyerReferenceImageUrl,
       reviewDecisions,
       loadChallengeFixture,
+      setBuyerReferenceImage,
       setGeneratedDocument,
       confirmReviewDecision,
       applyBuyerSpecifications,
     }),
-    [applyBuyerSpecifications, confirmReviewDecision, document, loadChallengeFixture, reviewDecisions, setGeneratedDocument],
+    [applyBuyerSpecifications, buyerReferenceImageUrl, confirmReviewDecision, document, loadChallengeFixture, reviewDecisions, setBuyerReferenceImage, setGeneratedDocument],
   );
 
   return <TechPackContext.Provider value={value}>{children}</TechPackContext.Provider>;

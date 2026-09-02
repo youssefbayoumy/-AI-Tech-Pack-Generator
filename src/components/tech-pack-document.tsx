@@ -73,7 +73,15 @@ function ClaimText({ claim }: Readonly<{ claim: Claim<unknown> }>) {
   return <><SourceDot claim={claim} />{displayClaim(claim)}{label === null ? null : <span className="provenance-label">{label}</span>}</>;
 }
 
-export function TechPackDocumentView({ content, preview = false }: Readonly<{ content: TechPackContent; preview?: boolean }>) {
+export function TechPackDocumentView({
+  buyerReferenceImageUrl = null,
+  content,
+  preview = false,
+}: Readonly<{
+  buyerReferenceImageUrl?: string | null;
+  content: TechPackContent;
+  preview?: boolean;
+}>) {
   const sizes = content.measurements.sizes;
   const isReversible = content.product.reversible.value === true;
   return (
@@ -86,7 +94,8 @@ export function TechPackDocumentView({ content, preview = false }: Readonly<{ co
           <span className="document-draft">DRAFT — NOT APPROVED FOR PRODUCTION</span>
         </div>
         <figure className="garment-reference garment-reference--private">
-          <figcaption>BUYER REFERENCE<br />PRIVATE INPUT · NOT PERSISTED</figcaption>
+          {preview && buyerReferenceImageUrl !== null ? <img src={buyerReferenceImageUrl} alt="Buyer-supplied reference" /> : null}
+          <figcaption>BUYER REFERENCE{preview && buyerReferenceImageUrl !== null ? <><span className="reference-caption">Buyer-supplied reference</span><span className="reference-caption">Private input · not persisted</span></> : <><br />PRIVATE INPUT · NOT PERSISTED</>}</figcaption>
         </figure>
       </header>
 

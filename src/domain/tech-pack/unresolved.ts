@@ -1,5 +1,11 @@
-import { collectClaimLocations, type TechPackSection } from './claim-locations';
-import type { ClaimSource, TechPackContent } from './schema';
+import {
+  collectClaimLocations,
+  type TechPackSection,
+} from './claim-locations';
+import type {
+  ClaimSource,
+  TechPackContent,
+} from './schema';
 
 export interface UnresolvedItem {
   id: string;
@@ -29,9 +35,42 @@ function unresolvedReason(source: ClaimSource): string {
   }
 }
 
-export function selectUnresolvedItems(content: TechPackContent): UnresolvedItem[] {
+function isOptionalMissingField(
+  canonicalPath: string,
+  section: TechPackSection,
+  source: ClaimSource,
+  value: unknown,
+): boolean {
+  return (
+    section === 'construction' &&
+    canonicalPath.endsWith('.notes') &&
+    source === 'not_provided' &&
+    value === null
+  );
+}
+
+export function selectUnresolvedItems(
+  content: TechPackContent,
+): UnresolvedItem[] {
   return collectClaimLocations(content)
-    .filter(({ claim }) => claim.confirmationStatus === 'needs_confirmation')
+    .filter(({ canonicalPath, section, claim }) => {
+      if (claim.confirmationStatus !== 'needs_confirmation') {
+        return false;
+      }
+
+      if (
+        isOptionalMissingField(
+          canonicalPath,
+          section,
+          claim.source,
+          claim.value,
+        )
+      ) {
+        return false;
+      }
+
+      return true;
+    })
     .map(({ canonicalPath, section, fieldLabel, unit, claim }) => ({
       id: `unresolved:${canonicalPath}`,
       canonicalPath,
@@ -42,7 +81,8 @@ export function selectUnresolvedItems(content: TechPackContent): UnresolvedItem[
       valueState: claim.value === null ? 'unknown' : 'proposed',
       reason: unresolvedReason(claim.source),
       confirmationQuestion:
-        claim.confirmationQuestion ?? 'Confirm or replace this unresolved value.',
+        claim.confirmationQuestion ??
+        'Confirm or replace this unresolved value.',
       source: claim.source,
     }));
 }

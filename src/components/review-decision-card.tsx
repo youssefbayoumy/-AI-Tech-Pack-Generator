@@ -35,11 +35,7 @@ export function specificationInputKind(canonicalPath: string): SpecificationInpu
   return 'text';
 }
 
-function decisionState(decision: ReviewDecision): string {
-  if (decision.action === 'add_specification') return 'SPECIFICATION REQUIRED';
-  if (decision.action === 'confirm_proposed_values') return 'PROPOSED VALUES';
-  return 'MIXED REVIEW';
-}
+const displayedItems = 3;
 
 interface ReviewDecisionCardProps {
   decision: ReviewDecision;
@@ -136,19 +132,16 @@ export function ReviewDecisionCard({
   const hasMissingSpecifications = decision.unknownItems.length > 0;
   return <article className="review-card" id={decision.id}>
     <div className="review-card__number">{String(index + 1).padStart(2, '0')}</div>
-    <div className="review-card__body"><div className="review-card__title"><div><span className="review-tag">PRODUCTION DECISION</span><h2>{decision.title}</h2></div><span className={hasMissingSpecifications ? 'state-tag state-tag--unknown' : 'state-tag'}>{decisionState(decision)}</span></div>
-      <dl className="review-details"><div><dt>Why it matters</dt><dd>{decision.whyItMatters}</dd></div><div><dt>Buyer provided</dt><dd>{decision.buyerProvidedItems.length === 0 ? 'No buyer-provided value' : `${decision.buyerProvidedItems.length} value${decision.buyerProvidedItems.length === 1 ? '' : 's'} from buyer evidence`}</dd></div><div><dt>Proposed</dt><dd>{decision.proposedItems.length === 0 ? 'No proposed value' : `${decision.proposedItems.length} proposed value${decision.proposedItems.length === 1 ? '' : 's'}`}</dd></div><div><dt>Still unresolved</dt><dd className={hasMissingSpecifications ? 'unknown-value' : ''}>{hasMissingSpecifications ? `${decision.unknownItems.length} specification${decision.unknownItems.length === 1 ? '' : 's'} needed` : 'No missing specifications'}</dd></div></dl>
+    <div className="review-card__body"><div className="review-card__title"><h2>{decision.title}</h2></div>
       <div className="decision-columns">
-        <div className="decision-values decision-values--buyer"><p className="eyebrow">BUYER PROVIDED</p>{decision.buyerProvidedItems.length === 0 ? <p className="decision-empty">No buyer-provided value</p> : decision.buyerProvidedItems.slice(0, 6).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>{readableReviewValue(item.currentValue, item.precision === 'approximate' ? item.precision : undefined, item.unit)}</span></p>)}{decision.buyerProvidedItems.length > 6 ? <p className="decision-more">+ {decision.buyerProvidedItems.length - 6} more buyer-provided fields</p> : null}</div>
-        <div className="decision-values"><p className="eyebrow">PROPOSED</p>{decision.proposedItems.length === 0 ? <p className="decision-empty">No proposed value</p> : decision.proposedItems.slice(0, 6).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>{readableReviewValue(item.currentValue, undefined, item.unit)}</span></p>)}{decision.proposedItems.length > 6 ? <p className="decision-more">+ {decision.proposedItems.length - 6} more proposed fields</p> : null}</div>
-        <div className="decision-values decision-values--unknown"><p className="eyebrow">STILL UNRESOLVED</p>{decision.unknownItems.length === 0 ? <p className="decision-empty">No missing specifications</p> : decision.unknownItems.slice(0, 6).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>Not specified</span></p>)}{decision.unknownItems.length > 6 ? <p className="decision-more">+ {decision.unknownItems.length - 6} more unresolved fields</p> : null}</div>
+        <div className="decision-values decision-values--buyer"><p className="eyebrow">BUYER PROVIDED</p>{decision.buyerProvidedItems.length === 0 ? <p className="decision-empty">None supplied</p> : decision.buyerProvidedItems.slice(0, displayedItems).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>{readableReviewValue(item.currentValue, item.precision === 'approximate' ? item.precision : undefined, item.unit)}</span></p>)}{decision.buyerProvidedItems.length > displayedItems ? <p className="decision-more">+ {decision.buyerProvidedItems.length - displayedItems} more</p> : null}</div>
+        <div className="decision-values"><p className="eyebrow">AI PROPOSED</p>{decision.proposedItems.length === 0 ? <p className="decision-empty">No proposal</p> : decision.proposedItems.slice(0, displayedItems).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong><span>{readableReviewValue(item.currentValue, undefined, item.unit)}</span></p>)}{decision.proposedItems.length > displayedItems ? <p className="decision-more">+ {decision.proposedItems.length - displayedItems} more</p> : null}</div>
+        <div className="decision-values decision-values--unknown"><p className="eyebrow">NEEDS YOUR INPUT</p>{decision.unknownItems.length === 0 ? <p className="decision-empty">No missing details</p> : decision.unknownItems.slice(0, displayedItems).map((item) => <p key={item.id}><strong>{item.fieldLabel}</strong></p>)}{decision.unknownItems.length > displayedItems ? <p className="decision-more">+ {decision.unknownItems.length - displayedItems} more</p> : null}</div>
       </div>
-      {hasMissingSpecifications && !isEditing ? <details className="decision-fields"><summary>Review questions for {decision.unknownItems.length} unresolved field{decision.unknownItems.length === 1 ? '' : 's'}</summary><ul>{decision.unknownItems.map((item) => <li key={item.id}><strong>{item.fieldLabel}</strong><span>{item.confirmationQuestion}</span></li>)}</ul></details> : null}
       {isEditing ? <ReviewSpecificationEditor decision={decision} onCancel={onCancelEditing} onSave={onSaveSpecifications} /> : null}
       <div className="review-card__actions">
-        {hasMissingSpecifications && !isEditing ? <button type="button" className="button button--secondary" onClick={onStartEditing}>Add specification</button> : null}
-        {decision.proposedItems.length > 0 ? <button type="button" className="button button--primary" disabled={hasMissingSpecifications} onClick={onConfirmProposedValues}>Confirm proposed values</button> : null}
-        {hasMissingSpecifications ? <p>Proposed values can be confirmed after required specifications are supplied.</p> : null}
+        {hasMissingSpecifications && !isEditing ? <button type="button" className="button button--primary" onClick={onStartEditing}>ADD MISSING DETAILS</button> : null}
+        {!hasMissingSpecifications && decision.proposedItems.length > 0 ? <button type="button" className="button button--primary" onClick={onConfirmProposedValues}>CONFIRM PROPOSED VALUES</button> : null}
       </div>
     </div>
   </article>;

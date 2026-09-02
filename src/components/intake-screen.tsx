@@ -24,20 +24,20 @@ interface GenerationResponse {
 }
 
 export function IntakeScreen() {
-  const { loadChallengeFixture, setGeneratedDocument } = useTechPack();
+  const {
+    buyerReferenceImageUrl,
+    loadChallengeFixture,
+    setBuyerReferenceImage,
+    setGeneratedDocument,
+  } = useTechPack();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
-
-  useEffect(() => () => {
-    if (previewUrl !== null) URL.revokeObjectURL(previewUrl);
-  }, [previewUrl]);
 
   useEffect(() => {
     if (!isGenerating) return undefined;
@@ -58,13 +58,11 @@ export function IntakeScreen() {
       setError(null);
       setSelectedFile(normalized);
       setFileName(normalized.name);
-      setPreviewUrl((current) => {
-        if (current !== null) URL.revokeObjectURL(current);
-        return URL.createObjectURL(normalized);
-      });
+      setBuyerReferenceImage(normalized);
     } catch (normalizationError) {
       setSelectedFile(null);
       setFileName(null);
+      setBuyerReferenceImage(null);
       setError(
         normalizationError instanceof BrowserImageNormalizationError
           ? normalizationError.message
@@ -140,7 +138,7 @@ export function IntakeScreen() {
               onDragOver={(event) => event.preventDefault()}
               onDrop={onDrop}
             >
-              {previewUrl === null ? <><span className="upload-icon">↑</span><strong>Drop image or browse</strong><span>JPEG, PNG, or WebP</span></> : <img src={previewUrl} alt="Selected garment reference" />}
+              {buyerReferenceImageUrl === null ? <><span className="upload-icon">↑</span><strong>Drop image or browse</strong><span>JPEG, PNG, or WebP</span></> : <img src={buyerReferenceImageUrl} alt="Selected garment reference" />}
             </button>
             <input ref={inputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={onFileChange} disabled={isGenerating} />
             <p className="file-caption">{fileName ?? 'No image selected yet.'}</p>

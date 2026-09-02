@@ -27,9 +27,9 @@ function visibleText(markup: string): string {
   return markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 }
 
-function renderCard(isEditing: boolean): string {
+function renderCard(isEditing: boolean, decision = sizeDecision()): string {
   return renderToStaticMarkup(createElement(ReviewDecisionCard, {
-    decision: sizeDecision(),
+    decision,
     index: 0,
     isEditing,
     onStartEditing: vi.fn(),
@@ -40,14 +40,17 @@ function renderCard(isEditing: boolean): string {
 }
 
 describe('review specification interaction presentation', () => {
-  it('enables Add specification when unknowns exist and blocks mixed confirmation', () => {
+  it('shows only the three concise decision summaries and the missing-details action', () => {
     const markup = renderCard(false);
 
-    expect(markup).toContain('>Add specification</button>');
-    expect(markup).toContain('disabled="">Confirm proposed values</button>');
+    expect(markup).toContain('>ADD MISSING DETAILS</button>');
+    expect(markup).not.toContain('CONFIRM PROPOSED VALUES');
     expect(visibleText(markup)).toContain('BUYER PROVIDED');
-    expect(visibleText(markup)).toContain('PROPOSED');
-    expect(visibleText(markup)).toContain('STILL UNRESOLVED');
+    expect(visibleText(markup)).toContain('AI PROPOSED');
+    expect(visibleText(markup)).toContain('NEEDS YOUR INPUT');
+    expect(visibleText(markup)).not.toContain('Why it matters');
+    expect(visibleText(markup)).not.toContain('Not specified');
+    expect(visibleText(markup)).not.toContain('Review questions');
   });
 
   it('opens a readable editor without a redundant action or visible canonical IDs', () => {
@@ -61,6 +64,20 @@ describe('review specification interaction presentation', () => {
     expect(text).toContain('Cancel');
     expect(markup).not.toContain('>Add specification</button>');
     expect(text).not.toMatch(/pom-|bom-|size-[sml]/i);
+  });
+
+  it('shows confirmation only after all required details are resolved', () => {
+    const proposedOnlyDecision = groupUnresolvedForReview(
+      selectUnresolvedItems(bucketHatContentFixture).filter((item) => item.valueState === 'proposed'),
+      selectBuyerProvidedReviewItems(bucketHatContentFixture),
+    ).find((candidate) => candidate.id === 'size_specification');
+    if (proposedOnlyDecision === undefined) throw new Error('Expected proposed-only size decision');
+
+    const markup = renderCard(false, proposedOnlyDecision);
+
+    expect(markup).toContain('>CONFIRM PROPOSED VALUES</button>');
+    expect(markup).not.toContain('ADD MISSING DETAILS');
+    expect(markup).not.toContain('disabled=""');
   });
 
   it('supports canonical string, number, boolean, and quantity inputs', () => {
