@@ -13,7 +13,11 @@ import {
   selectBuyerProvidedReviewItems,
   type ReviewDecision,
 } from '../../presentation/review-decisions';
-import { confirmClaimAtPath } from './review-actions';
+import {
+  applyBuyerSpecificationAtPath,
+  confirmClaimAtPath,
+  type BuyerSpecificationValue,
+} from './review-actions';
 
 interface TechPackState {
   document: TechPackDocument | null;
@@ -21,6 +25,10 @@ interface TechPackState {
   loadChallengeFixture: () => void;
   setGeneratedDocument: (document: TechPackDocument) => void;
   confirmReviewDecision: (decision: ReviewDecision) => void;
+  applyBuyerSpecifications: (specifications: Array<{
+    canonicalPath: string;
+    value: BuyerSpecificationValue;
+  }>) => void;
 }
 
 const TechPackContext = createContext<TechPackState | null>(null);
@@ -51,6 +59,24 @@ export function TechPackProvider({ children }: Readonly<{ children: React.ReactN
     });
   }, []);
 
+  const applyBuyerSpecifications = useCallback((specifications: Array<{
+    canonicalPath: string;
+    value: BuyerSpecificationValue;
+  }>) => {
+    setDocument((current) => {
+      if (current === null) return current;
+      const content = specifications.reduce(
+        (next, specification) => applyBuyerSpecificationAtPath(
+          next,
+          specification.canonicalPath,
+          specification.value,
+        ),
+        current.content,
+      );
+      return { ...current, content };
+    });
+  }, []);
+
   const unresolvedItems = useMemo(
     () => (document === null ? [] : selectUnresolvedItems(document.content)),
     [document],
@@ -70,8 +96,9 @@ export function TechPackProvider({ children }: Readonly<{ children: React.ReactN
       loadChallengeFixture,
       setGeneratedDocument,
       confirmReviewDecision,
+      applyBuyerSpecifications,
     }),
-    [confirmReviewDecision, document, loadChallengeFixture, reviewDecisions, setGeneratedDocument],
+    [applyBuyerSpecifications, confirmReviewDecision, document, loadChallengeFixture, reviewDecisions, setGeneratedDocument],
   );
 
   return <TechPackContext.Provider value={value}>{children}</TechPackContext.Provider>;

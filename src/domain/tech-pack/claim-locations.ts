@@ -14,6 +14,7 @@ export interface LocatedClaim {
   canonicalPath: string;
   section: TechPackSection;
   fieldLabel: string;
+  unit: string | null;
   claim: Claim<unknown>;
 }
 
@@ -22,8 +23,13 @@ function located(
   section: TechPackSection,
   fieldLabel: string,
   claim: Claim<unknown>,
+  unit: string | null = null,
 ): LocatedClaim {
-  return { canonicalPath, section, fieldLabel, claim };
+  return { canonicalPath, section, fieldLabel, unit, claim };
+}
+
+function contextLabel(value: unknown, fallback: string): string {
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback;
 }
 
 export function collectClaimLocations(content: TechPackContent): LocatedClaim[] {
@@ -41,73 +47,77 @@ export function collectClaimLocations(content: TechPackContent): LocatedClaim[] 
     located('product.reversible', 'product', 'Reversible product', content.product.reversible),
   ];
 
-  for (const note of content.product.notes) {
+  content.product.notes.forEach((note, index) => {
     claims.push(
-      located(`product.notes[${note.id}].text`, 'product', `Product note: ${note.id}`, note.text),
+      located(`product.notes[${note.id}].text`, 'product', `Product note ${index + 1}`, note.text),
     );
-  }
+  });
 
-  for (const item of content.billOfMaterials.items) {
+  content.billOfMaterials.items.forEach((item, index) => {
     const base = `billOfMaterials.items[${item.id}]`;
-    const prefix = `BOM ${item.id}`;
+    const prefix = contextLabel(item.component.value, `Material item ${index + 1}`);
     claims.push(
-      located(`${base}.component`, 'bill_of_materials', `${prefix} component`, item.component),
-      located(`${base}.placement`, 'bill_of_materials', `${prefix} placement`, item.placement),
-      located(`${base}.material`, 'bill_of_materials', `${prefix} material`, item.material),
-      located(`${base}.composition`, 'bill_of_materials', `${prefix} composition`, item.composition),
+      located(`${base}.component`, 'bill_of_materials', `${prefix} — Component`, item.component),
+      located(`${base}.placement`, 'bill_of_materials', `${prefix} — Placement`, item.placement),
+      located(`${base}.material`, 'bill_of_materials', `${prefix} — Material`, item.material),
+      located(`${base}.composition`, 'bill_of_materials', `${prefix} — Composition`, item.composition),
       located(
         `${base}.specification`,
         'bill_of_materials',
-        `${prefix} specification`,
+        `${prefix} — Specification`,
         item.specification,
       ),
-      located(`${base}.weightGsm`, 'bill_of_materials', `${prefix} fabric weight`, item.weightGsm),
-      located(`${base}.color`, 'bill_of_materials', `${prefix} color`, item.color),
-      located(`${base}.quantity`, 'bill_of_materials', `${prefix} quantity`, item.quantity),
-      located(`${base}.notes`, 'bill_of_materials', `${prefix} notes`, item.notes),
+      located(`${base}.weightGsm`, 'bill_of_materials', `${prefix} — Fabric weight`, item.weightGsm, 'GSM'),
+      located(`${base}.color`, 'bill_of_materials', `${prefix} — Color`, item.color),
+      located(`${base}.quantity`, 'bill_of_materials', `${prefix} — Consumption`, item.quantity),
+      located(`${base}.notes`, 'bill_of_materials', `${prefix} — Additional specification`, item.notes),
     );
-  }
+  });
 
-  for (const size of content.measurements.sizes) {
+  content.measurements.sizes.forEach((size, index) => {
     claims.push(
       located(
         `measurements.sizes[${size.id}].label`,
         'measurements',
-        `Size ${size.id} label`,
+        `Size label${size.label.value === null ? ` ${index + 1}` : ` — ${size.label.value}`}`,
         size.label,
       ),
     );
-  }
+  });
 
-  for (const point of content.measurements.points) {
+  content.measurements.points.forEach((point, pointIndex) => {
     const base = `measurements.points[${point.id}]`;
+    const prefix = contextLabel(point.pointOfMeasure.value, `Measurement ${pointIndex + 1}`);
     claims.push(
       located(
         `${base}.pointOfMeasure`,
         'measurements',
-        `POM ${point.id} name`,
+        `${prefix} — Point of measure`,
         point.pointOfMeasure,
       ),
       located(
         `${base}.measurementInstruction`,
         'measurements',
-        `POM ${point.id} instruction`,
+        `${prefix} — How to measure`,
         point.measurementInstruction,
       ),
-      located(`${base}.tolerance`, 'measurements', `POM ${point.id} tolerance`, point.tolerance),
+      located(`${base}.tolerance`, 'measurements', `${prefix} — Tolerance`, point.tolerance, content.measurements.unit),
     );
 
     for (const cell of point.values) {
+      const size = content.measurements.sizes.find((candidate) => candidate.id === cell.sizeId);
+      const sizeLabel = contextLabel(size?.label.value, 'Unlabelled size');
       claims.push(
         located(
           `${base}.values[${cell.sizeId}].measurement`,
           'measurements',
-          `POM ${point.id}, size ${cell.sizeId}`,
+          `${prefix} — Size ${sizeLabel}`,
           cell.measurement,
+          content.measurements.unit,
         ),
       );
     }
-  }
+  });
 
   for (const instruction of content.construction.instructions) {
     const base = `construction.instructions[${instruction.id}]`;
@@ -132,28 +142,29 @@ export function collectClaimLocations(content: TechPackContent): LocatedClaim[] 
       located(
         `colorConfiguration.reversibleSides[${side.id}].color`,
         'color_configuration',
-        `${side.label} color`,
+        `${side.label} — Color`,
         side.color,
       ),
     );
   }
 
-  for (const colorway of content.colorConfiguration.colorways) {
+  content.colorConfiguration.colorways.forEach((colorway, colorwayIndex) => {
     const base = `colorConfiguration.colorways[${colorway.id}]`;
+    const prefix = contextLabel(colorway.name.value, `Colorway ${colorwayIndex + 1}`);
     claims.push(
-      located(`${base}.name`, 'color_configuration', `Colorway ${colorway.id} name`, colorway.name),
+      located(`${base}.name`, 'color_configuration', `${prefix} — Colorway name`, colorway.name),
     );
     for (const component of colorway.components) {
       claims.push(
         located(
           `${base}.components[${component.id}].color`,
           'color_configuration',
-          `${component.component} color`,
+          `${component.component} — Color`,
           component.color,
         ),
       );
     }
-  }
+  });
 
   return claims;
 }

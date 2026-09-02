@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   bomDetailDisplay,
   buyerContextDisplay,
+  constructionInstructionDisplay,
   constructionSecondaryDisplay,
   displayClaim,
 } from '../src/components/tech-pack-document';
@@ -14,6 +15,14 @@ describe('technical document presentation', () => {
 
     expect(displayClaim(instruction.instruction)).toBe('Apply a single row of brim topstitching.');
     expect(constructionSecondaryDisplay(instruction.notes)).toBeNull();
+  });
+
+  it('turns a missing primary construction value into a specific review request', () => {
+    const instruction = bucketHatContentFixture.construction.instructions[1]!;
+
+    expect(constructionInstructionDisplay(instruction.instruction)).toBe(
+      'Specify the seam allowance for each seam.',
+    );
   });
 
   it('keeps approximate buyer GSM visibly approximate', () => {

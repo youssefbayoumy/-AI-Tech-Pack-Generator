@@ -24,6 +24,7 @@ export interface ReviewKnownItem {
   fieldLabel: string;
   currentValue: unknown;
   precision: ClaimPrecision;
+  unit: string | null;
 }
 
 interface DecisionDefinition {
@@ -85,7 +86,7 @@ function bomItemId(path: string): string | null {
   return match?.[1] ?? null;
 }
 
-function decisionKeyFor(item: Pick<UnresolvedItem, 'canonicalPath'>): DecisionKey {
+function decisionKeyFor(item: Pick<UnresolvedItem, 'canonicalPath' | 'fieldLabel'>): DecisionKey {
   if (item.canonicalPath.startsWith('measurements.')) return 'size_specification';
   if (
     item.canonicalPath.startsWith('construction.') ||
@@ -94,8 +95,9 @@ function decisionKeyFor(item: Pick<UnresolvedItem, 'canonicalPath'>): DecisionKe
 
   const itemId = bomItemId(item.canonicalPath);
   if (itemId !== null) {
-    if (itemId.includes('label')) return 'labeling';
-    if (itemId.includes('thread')) return 'thread_specification';
+    const context = `${itemId} ${item.fieldLabel}`.toLocaleLowerCase('en');
+    if (context.includes('label')) return 'labeling';
+    if (context.includes('thread')) return 'thread_specification';
     if (item.canonicalPath.endsWith('.quantity')) return 'material_consumption';
     return 'fabric_specification';
   }
@@ -110,12 +112,13 @@ function decisionKeyFor(item: Pick<UnresolvedItem, 'canonicalPath'>): DecisionKe
 export function selectBuyerProvidedReviewItems(content: TechPackContent): ReviewKnownItem[] {
   return collectClaimLocations(content)
     .filter(({ claim }) => claim.source === 'buyer' && claim.value !== null)
-    .map(({ canonicalPath, fieldLabel, claim }) => ({
+    .map(({ canonicalPath, fieldLabel, unit, claim }) => ({
       id: `buyer-provided:${canonicalPath}`,
       canonicalPath,
       fieldLabel,
       currentValue: claim.value,
       precision: claim.precision,
+      unit,
     }));
 }
 

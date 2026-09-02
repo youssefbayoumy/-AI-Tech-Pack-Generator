@@ -27,15 +27,14 @@ thought text. Gemini also has its own `GEMINI_MAX_OUTPUT_TOKENS` (32,000) and
 either provider-specific setting or send a reasoning control implicitly. Do not
 add `temperature` or `top_p` settings without a measured reason.
 
-All three adapters reuse the canonical JSON Schema generated from
-`techPackContentSchema`. OpenAI sends it through `techPackStructuredOutputFormat`
-as strict `text.format`; OpenRouter maps the same schema to strict
-`response_format.json_schema`; Gemini Interactions sends
-`response_format: { type: 'text', mime_type: 'application/json', schema }`.
-Each sends the prompt builder's stable instructions separately from untrusted
-buyer evidence and the validated local image. Gemini reads only the SDK's final
-`interaction.output_text`, then follows the same JSON parse, canonical Zod,
-semantic validation, and one-repair pipeline as the other providers.
+OpenAI and OpenRouter reuse the canonical JSON Schema generated from
+`techPackContentSchema`. Gemini intentionally uses a smaller provider-specific
+draft schema because the claim-rich canonical schema exceeded Gemini Structured
+Outputs' practical complexity. Gemini reads only the SDK's final
+`interaction.output_text`; a deterministic mapper resolves compact evidence
+paths and creates canonical claims before the shared Zod, semantic validation,
+and one-repair pipeline runs. The compact draft and canonical domain model must
+remain separate.
 
 OpenAI and OpenRouter reuse `techPackStructuredOutputFormat`, generated from the
 canonical schema. OpenAI sends it as strict `text.format`; OpenRouter maps the
@@ -52,10 +51,10 @@ separate 12,000-token and 60-second defaults.
 
 ## Model and server responsibilities
 
-The model returns **only** `TechPackContent`: product, BOM, measurements,
-construction, and color configuration with canonical claim provenance. It never
-returns document IDs, timestamps, schema/prompt versions, image hashes,
-lifecycle status, or buyer-review history.
+OpenAI and OpenRouter return only `TechPackContent`; Gemini returns only its
+compact draft DTO, which is immediately mapped to `TechPackContent`. Neither
+boundary may return document IDs, timestamps, schema/prompt versions, image
+hashes, lifecycle status, or buyer-review history.
 
 The server later validates the model content, performs at most one repair call,
 then adds the metadata to form `TechPackDocument`. The current demo fixture and
@@ -111,12 +110,11 @@ details unknown.
 
 ## Structured output and validation
 
-`src/lib/ai/structured-output.ts` uses Zod 4's native `z.toJSONSchema` on the
-existing strict `techPackContentSchema`. There is no hand-maintained duplicate
-schema and no model-boundary schema is currently necessary: the canonical
-content shape is already strict, object-rooted, metadata-free, and uses only
-the required nullable/enum/array primitives. The exported format is strict and
-named `tech_pack_content`.
+`src/lib/ai/structured-output.ts` uses Zod 4's native `z.toJSONSchema` for the
+OpenAI/OpenRouter boundary. Gemini uses the compact schema in
+`src/lib/ai/gemini/schema.ts`, followed immediately by the deterministic mapper
+in `src/lib/ai/gemini/map-draft.ts`. Canonical Zod and semantic validation remain
+authoritative for every provider.
 
 If a future canonical Zod feature cannot be represented in OpenAI's supported
 strict-schema subset, introduce the smallest documented projection only at the

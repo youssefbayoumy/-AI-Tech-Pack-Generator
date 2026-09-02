@@ -38,6 +38,8 @@ describe('generation request guardrails', () => {
 
   it('maps provider timeouts and service failures to safe public categories', () => {
     expect(classifyGenerationFailure({ kind: 'timeout' })).toBe('provider_timeout');
+    expect(classifyGenerationFailure({ kind: 'provider', status: 429 })).toBe('provider_rate_limit');
+    expect(classifyGenerationFailure({ kind: 'provider', status: 503 })).toBe('provider_error');
     expect(classifyGenerationFailure(new GenerationServiceError('repair_failed'))).toBe('repair_failed');
     expect(classifyGenerationFailure(new Error('sdk internals'))).toBe('provider_error');
   });

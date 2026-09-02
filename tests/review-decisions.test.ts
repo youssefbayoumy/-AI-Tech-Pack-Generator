@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { bucketHatContentFixture } from '../src/demo/bucket-hat';
 import { selectUnresolvedItems } from '../src/domain/tech-pack';
-import { confirmClaimAtPath } from '../src/app/state/review-actions';
+import { applyBuyerSpecificationAtPath, confirmClaimAtPath } from '../src/app/state/review-actions';
+import { collectClaimLocations } from '../src/domain/tech-pack/claim-locations';
 import {
   groupUnresolvedForReview,
   selectBuyerProvidedReviewItems,
@@ -75,7 +76,7 @@ describe('review-decision presentation adapter', () => {
     );
     const fabricWeight = decisions
       .find((decision) => decision.id === 'fabric_specification')
-      ?.buyerProvidedItems.find((item) => item.fieldLabel === 'BOM shell-side-a fabric weight');
+      ?.buyerProvidedItems.find((item) => item.fieldLabel === 'Shell / Side A — Fabric weight');
 
     expect(fabricWeight).toMatchObject({ currentValue: 280, precision: 'approximate' });
   });
@@ -100,5 +101,34 @@ describe('review-decision presentation adapter', () => {
       (before.find((decision) => decision.id === 'size_specification')?.items.length ?? 0) - 1,
     );
     expect(after.flatMap((decision) => decision.items)).toHaveLength(50);
+  });
+
+  it('uses contextual presentation labels without exposing canonical IDs', () => {
+    const labels = collectClaimLocations(bucketHatContentFixture).map((item) => item.fieldLabel);
+
+    expect(labels).toContain('Shell / Side A — Color');
+    expect(labels).toContain('Crown height — Tolerance');
+    expect(labels).toContain('Size label — S');
+    expect(labels.some((label) => /bom-|pom-|size-[sml]/i.test(label))).toBe(false);
+  });
+
+  it('saves one buyer specification through the canonical edit transition only', () => {
+    const path = 'measurements.points[pom-head-opening].tolerance';
+    const before = groupUnresolvedForReview(selectUnresolvedItems(bucketHatContentFixture));
+    const content = applyBuyerSpecificationAtPath(structuredClone(bucketHatContentFixture), path, 0.5);
+    const after = groupUnresolvedForReview(selectUnresolvedItems(content));
+    const edited = content.measurements.points.find((point) => point.id === 'pom-head-opening')!.tolerance;
+
+    expect(edited).toMatchObject({
+      value: 0.5,
+      source: 'buyer',
+      confirmationStatus: 'confirmed_by_buyer',
+      review: { action: 'buyer_edited', previousSource: 'not_provided' },
+    });
+    expect(after.find((decision) => decision.id === 'size_specification')!.items).toHaveLength(
+      before.find((decision) => decision.id === 'size_specification')!.items.length - 1,
+    );
+    expect(after.find((decision) => decision.id === 'size_specification')!.unknownItems.length).toBeGreaterThan(0);
+    expect(content.measurements.points[0]!.values[0]!.measurement.source).toBe('ai_assumption');
   });
 });

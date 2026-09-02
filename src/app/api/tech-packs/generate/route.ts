@@ -173,6 +173,7 @@ export async function POST(request: Request) {
       diagnostics: diagnosticsForServerLog(diagnostics),
       outcome: code,
     });
-    return safeErrorResponse(requestId, code, code === 'provider_timeout' ? 504 : 502);
+    const status = code === 'provider_timeout' ? 504 : code === 'provider_rate_limit' ? 429 : 502;
+    return safeErrorResponse(requestId, code, status);
   }
 }

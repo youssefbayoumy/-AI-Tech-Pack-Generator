@@ -7,6 +7,7 @@ export interface UnresolvedItem {
   section: TechPackSection;
   fieldLabel: string;
   currentValue: unknown;
+  unit: string | null;
   valueState: 'unknown' | 'proposed';
   reason: string;
   confirmationQuestion: string;
@@ -31,12 +32,13 @@ function unresolvedReason(source: ClaimSource): string {
 export function selectUnresolvedItems(content: TechPackContent): UnresolvedItem[] {
   return collectClaimLocations(content)
     .filter(({ claim }) => claim.confirmationStatus === 'needs_confirmation')
-    .map(({ canonicalPath, section, fieldLabel, claim }) => ({
+    .map(({ canonicalPath, section, fieldLabel, unit, claim }) => ({
       id: `unresolved:${canonicalPath}`,
       canonicalPath,
       section,
       fieldLabel,
       currentValue: claim.value,
+      unit,
       valueState: claim.value === null ? 'unknown' : 'proposed',
       reason: unresolvedReason(claim.source),
       confirmationQuestion:

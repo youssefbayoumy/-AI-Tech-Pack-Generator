@@ -202,18 +202,7 @@ Do not introduce Blob storage solely for this fixture. If original/larger upload
 
 ## 9. PDF strategy
 
-Defer PDF until the validated editable web document is solid. Then render from canonical JSON on the server using `@react-pdf/renderer` (or another pure Node renderer) through the export route.
-
-Reasons:
-
-- deterministic layout and pagination;
-- no Chromium/Puppeteer binary or browser lifecycle in a Vercel Function;
-- shared data/view-model with the web renderer;
-- straightforward headers, footers, page numbers, repeated table headers, draft watermark, provenance legend, and confirmation callouts.
-
-Embed required fonts explicitly, especially if Arabic text is possible. Test long BOM rows, long construction notes, measurement tables, page breaks, and missing values. Keep the PDF renderer presentation-only; it must not call the LLM or change content.
-
-For the challenge, browser print CSS is an acceptable demonstration fallback only if clearly labeled as provisional. Do not claim polished PDF export until generated files have been visually inspected across representative fixtures.
+The challenge release exports from the validated canonical document through the browser print dialog. **Export PDF** calls `window.print()` and A4 print CSS hides application chrome while preserving the draft warning and technical sections. This keeps the export path lightweight, uses the same edited canonical state, and avoids a Chromium/Puppeteer backend. A production server-rendered PDF with stronger pagination and representative visual regression coverage remains a future enhancement.
 
 ## 10. Failure modes to design around
 

@@ -20,6 +20,11 @@ export function constructionSecondaryDisplay(claim: Claim<unknown>): string | nu
   return claim.value === null ? null : displayClaim(claim);
 }
 
+export function constructionInstructionDisplay(claim: Claim<unknown>): string {
+  if (claim.value !== null) return displayClaim(claim);
+  return claim.confirmationQuestion ?? 'Construction specification required.';
+}
+
 export function buyerContextDisplay(
   context: Claim<unknown>,
   intendedUse: Claim<unknown>,
@@ -136,7 +141,7 @@ export function TechPackDocumentView({ content, preview = false }: Readonly<{ co
         <div className="section-heading"><span>04</span><h2>Construction / Sewing Notes</h2></div>
         <ol className="construction-list">{content.construction.instructions.map((instruction) => <li key={instruction.id}>
           <span className="sequence">{String(instruction.sequence).padStart(2, '0')}</span>
-          <div><strong>{instruction.componentArea}</strong><p className={claimClass(instruction.instruction)}><ClaimText claim={instruction.instruction} /></p>{constructionSecondaryDisplay(instruction.notes) === null ? null : <p className={claimClass(instruction.notes)}><ClaimText claim={instruction.notes} /></p>}</div>
+          <div><strong>{instruction.componentArea}</strong><p className={claimClass(instruction.instruction)}>{instruction.instruction.value === null ? <><span className="construction-note-label">Specification required:</span> {constructionInstructionDisplay(instruction.instruction)}</> : <ClaimText claim={instruction.instruction} />}</p>{constructionSecondaryDisplay(instruction.notes) === null ? null : <p className={claimClass(instruction.notes)}><span className="construction-note-label">Additional note:</span> <ClaimText claim={instruction.notes} /></p>}</div>
         </li>)}</ol>
       </section>
 
