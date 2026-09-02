@@ -115,8 +115,7 @@ If numeric measurements are not supplied by the buyer, propose sensible draft me
 
 Unknown specifications may remain null or not_provided.
 
-Never solve uncertainty by omitting the entire section.
-`.trim();
+Never solve uncertainty by omitting the entire section.`.trim();
 
 export interface TechPackGenerationRequest {
   promptVersion: typeof TECH_PACK_GENERATION_PROMPT_VERSION;

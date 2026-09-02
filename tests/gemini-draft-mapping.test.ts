@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { techPackContentSchema, validateTechPackContent } from '../src/domain/tech-pack';
 import { mapGeminiDraftToTechPackContent } from '../src/lib/ai/gemini/map-draft';
 
-const buyerDescription = 'Plain cotton bucket hat, reversible, in khaki and black. Available in S, M, and L. Use ~280 GSM cotton.';
+const buyerDescription = "Plain cotton bucket hat, reversible, in khaki and black, for a small Egyptian apparel brand's first production run. Available in S, M, and L. Use ~280 GSM cotton.";
 
 function mappedDraft() {
   return mapGeminiDraftToTechPackContent({
@@ -45,6 +45,14 @@ describe('Gemini compact draft mapper', () => {
   it('preserves ~280 GSM as numeric approximate buyer evidence', () => {
     const gsm = mappedDraft().billOfMaterials.items[0]!.weightGsm;
     expect(gsm).toMatchObject({ value: 280, precision: 'approximate', source: 'buyer', confirmationStatus: 'confirmed_by_buyer' });
+  });
+
+  it('derives explicit buyer context when the compact draft does not carry that field', () => {
+    expect(mappedDraft().product.targetUserContext).toMatchObject({
+      value: 'Small Egyptian apparel brand · First production run',
+      source: 'buyer',
+      confirmationStatus: 'confirmed_by_buyer',
+    });
   });
 
   it('keeps buyer-provided S/M/L labels separate from generated numeric measurement provenance', () => {

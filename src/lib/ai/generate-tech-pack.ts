@@ -115,13 +115,19 @@ function compactDraftDiagnostic(output: unknown): SafeCompactDraftSummary | null
     colorConfigurationObjectPresent: draft.colorConfiguration !== undefined,
   };
 }
-
 /** Excludes local-only semantic and compact-draft details from server logs. */
 export function diagnosticsForServerLog(diagnostics: SafeGenerationDiagnostics) {
-  const { semanticErrors: _semanticErrors, compactDraftSummary: _compactDraftSummary, ...safeDiagnostics } = diagnostics;
+  const {
+    semanticErrors,
+    compactDraftSummary,
+    ...safeDiagnostics
+  } = diagnostics;
+
+  void semanticErrors;
+  void compactDraftSummary;
+
   return safeDiagnostics;
 }
-
 export interface GenerateTechPackServiceInput {
   requestId?: string;
   buyerDescription: string;

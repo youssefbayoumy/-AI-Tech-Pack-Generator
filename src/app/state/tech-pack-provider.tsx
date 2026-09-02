@@ -8,7 +8,11 @@ import {
   techPackDocumentSchema,
   type TechPackDocument,
 } from '../../domain/tech-pack';
-import { groupUnresolvedForReview, type ReviewDecision } from '../../presentation/review-decisions';
+import {
+  groupUnresolvedForReview,
+  selectBuyerProvidedReviewItems,
+  type ReviewDecision,
+} from '../../presentation/review-decisions';
 import { confirmClaimAtPath } from './review-actions';
 
 interface TechPackState {
@@ -52,8 +56,11 @@ export function TechPackProvider({ children }: Readonly<{ children: React.ReactN
     [document],
   );
   const reviewDecisions = useMemo(
-    () => groupUnresolvedForReview(unresolvedItems),
-    [unresolvedItems],
+    () => groupUnresolvedForReview(
+      unresolvedItems,
+      document === null ? [] : selectBuyerProvidedReviewItems(document.content),
+    ),
+    [document, unresolvedItems],
   );
 
   const value = useMemo<TechPackState>(

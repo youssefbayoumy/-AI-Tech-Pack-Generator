@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { bucketHatContentFixture } from '../src/demo/bucket-hat';
 import { selectUnresolvedItems } from '../src/domain/tech-pack';
 import { confirmClaimAtPath } from '../src/app/state/review-actions';
-import { groupUnresolvedForReview } from '../src/presentation/review-decisions';
+import {
+  groupUnresolvedForReview,
+  selectBuyerProvidedReviewItems,
+} from '../src/presentation/review-decisions';
 
 function decisionById(id: string) {
   const decision = groupUnresolvedForReview(selectUnresolvedItems(bucketHatContentFixture)).find(
@@ -53,6 +56,28 @@ describe('review-decision presentation adapter', () => {
     expect(unknownOnly.find((decision) => decision.id === 'material_consumption')?.action).toBe(
       'add_specification',
     );
+  });
+
+  it('keeps buyer-provided size labels separate from proposed numeric measurements', () => {
+    const decision = groupUnresolvedForReview(
+      selectUnresolvedItems(bucketHatContentFixture),
+      selectBuyerProvidedReviewItems(bucketHatContentFixture),
+    ).find((candidate) => candidate.id === 'size_specification');
+
+    expect(decision?.buyerProvidedItems.map((item) => item.currentValue)).toEqual(['S', 'M', 'L']);
+    expect(decision?.proposedItems.every((item) => item.source === 'ai_assumption')).toBe(true);
+  });
+
+  it('retains approximate precision for buyer-provided review values', () => {
+    const decisions = groupUnresolvedForReview(
+      selectUnresolvedItems(bucketHatContentFixture),
+      selectBuyerProvidedReviewItems(bucketHatContentFixture),
+    );
+    const fabricWeight = decisions
+      .find((decision) => decision.id === 'fabric_specification')
+      ?.buyerProvidedItems.find((item) => item.fieldLabel === 'BOM shell-side-a fabric weight');
+
+    expect(fabricWeight).toMatchObject({ currentValue: 280, precision: 'approximate' });
   });
 
   it('orders decisions deterministically by explicit manufacturing priority', () => {

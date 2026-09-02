@@ -1,4 +1,5 @@
-import type { UnresolvedItem } from '../domain/tech-pack';
+import type { ClaimPrecision, TechPackContent, UnresolvedItem } from '../domain/tech-pack';
+import { collectClaimLocations } from '../domain/tech-pack/claim-locations';
 
 export type ReviewDecisionAction =
   | 'add_specification'
@@ -13,7 +14,16 @@ export interface ReviewDecision {
   items: UnresolvedItem[];
   proposedItems: UnresolvedItem[];
   unknownItems: UnresolvedItem[];
+  buyerProvidedItems: ReviewKnownItem[];
   action: ReviewDecisionAction;
+}
+
+export interface ReviewKnownItem {
+  id: string;
+  canonicalPath: string;
+  fieldLabel: string;
+  currentValue: unknown;
+  precision: ClaimPrecision;
 }
 
 interface DecisionDefinition {
@@ -75,7 +85,7 @@ function bomItemId(path: string): string | null {
   return match?.[1] ?? null;
 }
 
-function decisionKeyFor(item: UnresolvedItem): DecisionKey {
+function decisionKeyFor(item: Pick<UnresolvedItem, 'canonicalPath'>): DecisionKey {
   if (item.canonicalPath.startsWith('measurements.')) return 'size_specification';
   if (
     item.canonicalPath.startsWith('construction.') ||
@@ -93,6 +103,22 @@ function decisionKeyFor(item: UnresolvedItem): DecisionKey {
   return 'product_details';
 }
 
+/**
+ * Derives buyer-supplied values for the same decision groups without storing
+ * review-only state. These values remain canonical claims and are display-only.
+ */
+export function selectBuyerProvidedReviewItems(content: TechPackContent): ReviewKnownItem[] {
+  return collectClaimLocations(content)
+    .filter(({ claim }) => claim.source === 'buyer' && claim.value !== null)
+    .map(({ canonicalPath, fieldLabel, claim }) => ({
+      id: `buyer-provided:${canonicalPath}`,
+      canonicalPath,
+      fieldLabel,
+      currentValue: claim.value,
+      precision: claim.precision,
+    }));
+}
+
 function actionFor(
   proposedItems: UnresolvedItem[],
   unknownItems: UnresolvedItem[],
@@ -106,7 +132,10 @@ function actionFor(
  * Converts canonical unresolved claims into prioritized buyer decisions. Every
  * input claim appears exactly once in the result; no review state is stored.
  */
-export function groupUnresolvedForReview(items: UnresolvedItem[]): ReviewDecision[] {
+export function groupUnresolvedForReview(
+  items: UnresolvedItem[],
+  buyerProvidedItems: ReviewKnownItem[] = [],
+): ReviewDecision[] {
   const grouped = new Map<DecisionKey, UnresolvedItem[]>();
   for (const item of items) {
     const key = decisionKeyFor(item);
@@ -120,11 +149,15 @@ export function groupUnresolvedForReview(items: UnresolvedItem[]): ReviewDecisio
       const definition = decisionDefinitions[key];
       const proposedItems = groupedItems.filter((item) => item.valueState === 'proposed');
       const unknownItems = groupedItems.filter((item) => item.valueState === 'unknown');
+      const decisionBuyerProvidedItems = buyerProvidedItems.filter(
+        (item) => decisionKeyFor(item) === key,
+      );
       return {
         ...definition,
         items: groupedItems,
         proposedItems,
         unknownItems,
+        buyerProvidedItems: decisionBuyerProvidedItems,
         action: actionFor(proposedItems, unknownItems),
       };
     })

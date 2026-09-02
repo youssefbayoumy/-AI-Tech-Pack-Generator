@@ -18,6 +18,31 @@ function numberFromGsm(value: string | number | null | undefined): number | null
   const match = value.match(/-?\d+(?:\.\d+)?/);
   return match === null ? null : Number(match[0]);
 }
+function buyerContextFromDescription(buyerDescription: string): Claim<string> {
+  const normalized = buyerDescription.replace(/\s+/g, ' ').trim();
+  const match = normalized.match(/\bfor\s+(?:a|an|the)\s+(.+?)[’']s\s+(first\s+production\s+run)\b/i);
+  if (match === null) return unknown<string>('target user context');
+
+  const businessContext = match[1]?.trim();
+  const productionStage = match[2]?.trim();
+  if (businessContext === undefined || productionStage === undefined) {
+    return unknown<string>('target user context');
+  }
+
+  const sentenceCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+  return {
+    value: `${sentenceCase(businessContext)} · ${sentenceCase(productionStage)}`,
+    precision: 'exact',
+    source: 'buyer',
+    sourceDetail: match[0],
+    evidenceRefs: ['buyer-description'],
+    derivedFrom: [],
+    confirmationStatus: 'confirmed_by_buyer',
+    confirmationQuestion: null,
+    rationale: null,
+    review: null,
+  };
+}
 function unknown<T>(label: string): Claim<T> {
   return { value: null, precision: 'unknown', source: 'not_provided', sourceDetail: `No reliable ${label} was provided.`, evidenceRefs: [], derivedFrom: [], confirmationStatus: 'needs_confirmation', confirmationQuestion: `Provide ${label}.`, rationale: 'No reliable value was supplied.', review: null };
 }
@@ -103,7 +128,7 @@ export function mapGeminiDraftToTechPackContent(rawDraft: unknown, buyerDescript
   const reversibleSides = isReversible ? [side('side-a', 'Side A', text(colors.sideA), 'colorConfiguration.sideA'), side('side-b', 'Side B', text(colors.sideB), 'colorConfiguration.sideB')] : [];
   const colorways = !isReversible ? [{ id: 'colorway-1', name: claimFor(text(colors.sideA), 'colorConfiguration.sideA', 'primary colorway', evidence, buyerDescription), components: [{ id: 'main-body', component: 'Main body', color: claimFor(text(colors.sideA), 'colorConfiguration.sideA', 'main body color', evidence, buyerDescription) }] }] : [];
   return {
-    product: { name: claimFor(text(product.name), 'product.name', 'product name', evidence, buyerDescription), category: claimFor(text(product.category), 'product.category', 'product category', evidence, buyerDescription), description: claimFor(text(product.description), 'product.description', 'product description', evidence, buyerDescription), intendedUse: claimFor(text(product.intendedUse), 'product.intendedUse', 'intended use', evidence, buyerDescription), targetUserContext: unknown<string>('target user context'), reversible, notes: [] },
+    product: { name: claimFor(text(product.name), 'product.name', 'product name', evidence, buyerDescription), category: claimFor(text(product.category), 'product.category', 'product category', evidence, buyerDescription), description: claimFor(text(product.description), 'product.description', 'product description', evidence, buyerDescription), intendedUse: claimFor(text(product.intendedUse), 'product.intendedUse', 'intended use', evidence, buyerDescription), targetUserContext: buyerContextFromDescription(buyerDescription), reversible, notes: [] },
     billOfMaterials: { items: bom }, measurements: { unit: measurementDraft.unit ?? 'cm', sizes, points }, construction: { instructions: construction }, colorConfiguration: { reversibleSides, colorways },
   };
 }
