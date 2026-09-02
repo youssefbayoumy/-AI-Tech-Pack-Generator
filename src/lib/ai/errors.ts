@@ -1,6 +1,7 @@
 export const generationErrorCodes = [
   'invalid_input',
   'unsupported_image',
+  'image_too_large',
   'provider_error',
   'provider_timeout',
   'malformed_output',
@@ -18,8 +19,9 @@ export interface GenerationError {
 
 /** Safe UI-facing copy. Future logs should retain codes and IDs, not buyer data. */
 export const generationErrorMessages: Record<GenerationErrorCode, GenerationError> = {
-  invalid_input: { code: 'invalid_input', message: 'Check the description and try again.', retryable: false },
-  unsupported_image: { code: 'unsupported_image', message: 'Use a supported product image and try again.', retryable: false },
+  invalid_input: { code: 'invalid_input', message: 'Add a product image and description before generating.', retryable: false },
+  unsupported_image: { code: 'unsupported_image', message: 'Use a JPEG, PNG, or WebP image.', retryable: false },
+  image_too_large: { code: 'image_too_large', message: 'This image is too large to process. Try a smaller image.', retryable: false },
   provider_error: { code: 'provider_error', message: 'Generation is temporarily unavailable. Try again.', retryable: true },
   provider_timeout: { code: 'provider_timeout', message: 'Generation took too long. Try again.', retryable: true },
   malformed_output: { code: 'malformed_output', message: 'The draft could not be read. Try again.', retryable: true },

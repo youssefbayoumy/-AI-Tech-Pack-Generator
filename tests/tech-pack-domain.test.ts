@@ -13,7 +13,9 @@ import {
 import {
   bucketHatContentFixture,
   bucketHatDocumentFixture,
-} from './fixtures/bucket-hat';
+} from '../src/demo/bucket-hat';
+import { collectClaimLocations } from '../src/domain/tech-pack/claim-locations';
+import { confirmClaimAtPath } from '../src/app/state/review-actions';
 
 function cloneFixture(): TechPackContent {
   return structuredClone(bucketHatContentFixture);
@@ -68,7 +70,6 @@ describe('canonical bucket-hat fixture', () => {
     expect(validateTechPackContent(bucketHatContentFixture).success).toBe(true);
   });
 });
-
 describe('required content', () => {
   it('rejects a missing product description', () => {
     const invalid = cloneFixture();
@@ -119,7 +120,6 @@ describe('required content', () => {
     expect(codes).toContain('REVERSIBLE_SIDES_INCOMPLETE');
   });
 });
-
 describe('measurement rules', () => {
   it('rejects charts with fewer than three sizes', () => {
     const invalid = cloneFixture();
@@ -231,6 +231,12 @@ describe('needs-confirmation and review transitions', () => {
     expect(unresolvedPaths.has('colorConfiguration.reversibleSides[side-a].color')).toBe(false);
   });
 
+  it('keeps the explicit claim-location registry in sync with the fixture', () => {
+    // A new claim-bearing fixture field must be deliberately registered; this
+    // makes an accidental omission visible in the domain test suite.
+    expect(collectClaimLocations(bucketHatContentFixture)).toHaveLength(78);
+  });
+
   it('confirms and edits uncertain claims as buyer-reviewed while preserving origin', () => {
     const proposed = bucketHatContentFixture.measurements.points[0]?.values[0]?.measurement;
     if (proposed === undefined) throw new Error('Fixture must have a proposed measurement');
@@ -254,6 +260,18 @@ describe('needs-confirmation and review transitions', () => {
       previousSource: 'ai_assumption',
     });
     expect(numberClaimSchema.safeParse(edited).success).toBe(true);
+  });
+
+  it('adapts a registry-emitted path into the shared canonical review state', () => {
+    const content = cloneFixture();
+    const path = 'measurements.points[pom-head-opening].values[size-s].measurement';
+    const next = confirmClaimAtPath(content, path);
+
+    expect(next.measurements.points[0]?.values[0]?.measurement.confirmationStatus).toBe(
+      'confirmed_by_buyer',
+    );
+    expect(selectUnresolvedItems(next).some((item) => item.canonicalPath === path)).toBe(false);
+    expect(validateTechPackContent(next, { phase: 'review' }).success).toBe(true);
   });
 
   it('rejects model-generated content that fabricates a buyer-review transition', () => {
